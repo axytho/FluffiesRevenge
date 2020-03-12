@@ -96,11 +96,12 @@ module control_unit(
 		    mem_read  = 1'b0;
 		    mem_write = 1'b1;
 		    branch    = 1'b0;
-		    alu_op    = 2'dx;
+		    alu_op    = ADD_OPCODE;
 		    jump      = 1'b0;		
 		
 
          end
+
 	 LOAD_WORD:begin
 	 	    reg_dst = 1'b0; //20-16
 		    alu_src   = 1'b1;
@@ -109,7 +110,7 @@ module control_unit(
 		    mem_read  = 1'b1;
 		    mem_write = 1'b0;
 		    branch    = 1'b0;
-		    alu_op    = 2'dx;
+		    alu_op    = ADD_OPCODE;
 		    jump      = 1'b0;		
 		
 
