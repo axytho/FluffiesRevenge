@@ -46,7 +46,42 @@ module control_unit(
          end
     
 	// Declare the control signals for each one of the instructions
+
+
 	
+
+
+	case(opcode) // sw 
+	 STORE_WORD:begin
+	 	    reg_dst = 1'b0; //20-16
+		    alu_src   = 1'b1;
+		    mem_2_reg = 1'bx;
+		    reg_write = 1'b0;
+		    mem_read  = 1'b0;
+		    mem_write = 1'b1;
+		    branch    = 1'b0;
+		    alu_op    = 2'dx;
+		    jump      = 1'b0;		
+		
+
+         end
+
+
+         case(opcode) // sw 
+	 LOAD_WORD:begin
+	 	    reg_dst = 1'b0; //20-16
+		    alu_src   = 1'b1;
+		    mem_2_reg = 1'b1;
+		    reg_write = 1'b1;
+		    mem_read  = 1'b1;
+		    mem_write = 1'b0;
+		    branch    = 1'b0;
+		    alu_op    = 2'dx;
+		    jump      = 1'b0;		
+		
+
+         end
+
          default:begin
             reg_dst   = 1'b0; 
             alu_src   = 1'b0;
