@@ -102,8 +102,6 @@ module control_unit(
 
          end
 
-
-
 	 LOAD_WORD:begin
 	 	    reg_dst = 1'b0; //20-16
 		    alu_src   = 1'b1;
