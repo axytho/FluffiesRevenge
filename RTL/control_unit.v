@@ -82,6 +82,7 @@ module control_unit(
          end
 
 
+
     
 	// Declare the control signals for each one of the instructions
 	
