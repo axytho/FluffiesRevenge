@@ -87,9 +87,6 @@ module control_unit(
 	// Declare the control signals for each one of the instructions
 
 
-	
-
-
 
 	 STORE_WORD:begin
 	 	    reg_dst = 1'b0; //20-16
