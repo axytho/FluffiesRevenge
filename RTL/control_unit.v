@@ -44,7 +44,7 @@ module control_unit(
             alu_op    = R_TYPE_OPCODE;
             jump      = 1'b0;
          end
-	
+
          ADDI:begin
             reg_dst   = 1'b1;
             alu_src   = 1'b0;
@@ -56,6 +56,7 @@ module control_unit(
             alu_op    = ADD_OPCODE;
             jump      = 1'b0;
          end
+
     
 	// Declare the control signals for each one of the instructions
 	
