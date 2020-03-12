@@ -96,7 +96,7 @@ module control_unit(
 		    mem_read  = 1'b0;
 		    mem_write = 1'b1;
 		    branch    = 1'b0;
-		    alu_op    = 2'dx;
+		    alu_op    = ADD_OPCODE;
 		    jump      = 1'b0;		
 		
 
@@ -112,7 +112,7 @@ module control_unit(
 		    mem_read  = 1'b1;
 		    mem_write = 1'b0;
 		    branch    = 1'b0;
-		    alu_op    = 2'dx;
+		    alu_op    = ADD_OPCODE;
 		    jump      = 1'b0;		
 		
 
