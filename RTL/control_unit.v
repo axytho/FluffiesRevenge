@@ -90,7 +90,7 @@ module control_unit(
 	
 
 
-	case(opcode) // sw 
+
 	 STORE_WORD:begin
 	 	    reg_dst = 1'b0; //20-16
 		    alu_src   = 1'b1;
@@ -106,7 +106,7 @@ module control_unit(
          end
 
 
-         case(opcode) // sw 
+
 	 LOAD_WORD:begin
 	 	    reg_dst = 1'b0; //20-16
 		    alu_src   = 1'b1;
