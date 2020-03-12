@@ -176,20 +176,20 @@ Statistics for MUX_OPs
 Presto compilation completed successfully.
 Information: Building the design 'alu_control'. (HDL-193)
 
-Statistics for case statements in always block at line 40 in file
+Statistics for case statements in always block at line 42 in file
 	'../RTL/alu_control.v'
 ===============================================
 |           Line           |  full/ parallel  |
 ===============================================
-|            41            |    auto/auto     |
+|            43            |    auto/auto     |
 ===============================================
 
-Statistics for case statements in always block at line 54 in file
+Statistics for case statements in always block at line 57 in file
 	'../RTL/alu_control.v'
 ===============================================
 |           Line           |  full/ parallel  |
 ===============================================
-|            55            |    auto/auto     |
+|            58            |    auto/auto     |
 ===============================================
 Presto compilation completed successfully.
 Information: Building the design 'mux_2' instantiated from design 'cpu' with
@@ -197,14 +197,14 @@ Information: Building the design 'mux_2' instantiated from design 'cpu' with
 Presto compilation completed successfully.
 Information: Building the design 'alu' instantiated from design 'cpu' with
 	the parameters "DATA_W=32". (HDL-193)
-Warning:  ../RTL/alu.v:55: signed to unsigned conversion occurs. (VER-318)
+Warning:  ../RTL/alu.v:56: signed to unsigned conversion occurs. (VER-318)
 
-Statistics for case statements in always block at line 77 in file
+Statistics for case statements in always block at line 79 in file
 	'../RTL/alu.v'
 ===============================================
 |           Line           |  full/ parallel  |
 ===============================================
-|            78            |    auto/auto     |
+|            80            |    auto/auto     |
 ===============================================
 Presto compilation completed successfully.
 Information: Building the design 'sram' instantiated from design 'cpu' with
@@ -529,7 +529,7 @@ check_design
 ****************************************
 check_design summary:
 Version:     N-2017.09-SP3
-Date:        Thu Mar 12 11:10:56 2020
+Date:        Thu Mar 12 11:57:22 2020
 ****************************************
 
                    Name                                            Total
@@ -802,15 +802,15 @@ Information: Changed wire load model for 'mux_2_DATA_W32' from '(none)' to 'ForQ
 Information: Changed wire load model for 'mux_2_DATA_W32' from '(none)' to 'ForQA'. (OPT-170)
 Information: Changed wire load model for 'pc_DATA_W32' from '(none)' to 'ForQA'. (OPT-170)
 Information: Changed wire load model for 'alt1' from '(none)' to 'ForQA'. (OPT-170)
-Information: Changed wire load model for 'astr' from '(none)' to 'ForQA'. (OPT-170)
-Information: Changed wire load model for 'alt1' from '(none)' to 'ForQA'. (OPT-170)
-Information: Changed wire load model for 'astr' from '(none)' to 'ForQA'. (OPT-170)
+Information: Changed wire load model for 'apparch' from '(none)' to 'ForQA'. (OPT-170)
 Information: Changed wire load model for 'DW01_add_width32' from '(none)' to 'ForQA'. (OPT-170)
 Information: Changed wire load model for '*ADD_TC_OP_32_32_32' from '(none)' to 'ForQA'. (OPT-170)
 Information: Changed wire load model for 'DW01_sub_width32' from '(none)' to 'ForQA'. (OPT-170)
 Information: Changed wire load model for '*SUB_TC_OP_32_32_32' from '(none)' to 'ForQA'. (OPT-170)
 Information: Changed wire load model for 'DW01_add_width32' from '(none)' to 'ForQA'. (OPT-170)
 Information: Changed wire load model for '*ADD_TC_OP_32_32_32' from '(none)' to 'ForQA'. (OPT-170)
+Information: Changed wire load model for 'DW02_mult' from '(none)' to 'ForQA'. (OPT-170)
+Information: Changed wire load model for '*MULT_TC_OP_32_32_32' from '(none)' to 'ForQA'. (OPT-170)
 Information: Changed wire load model for 'DW01_cmp2_width32' from '(none)' to 'ForQA'. (OPT-170)
 Information: Changed wire load model for '*LT_TC_OP_32_32_1' from '(none)' to 'ForQA'. (OPT-170)
 Information: Changed wire load model for 'DW_rightsh' from '(none)' to 'ForQA'. (OPT-170)
@@ -1605,11 +1605,12 @@ Information: Skipping clock gating on design branch_unit_DATA_W32, since there a
 Information: Skipping clock gating on design mux_2_DATA_W32_0, since there are no registers. (PWR-806)
 Information: Skipping clock gating on design pc_DATA_W32_DW01_add_J2_0, since there are no registers. (PWR-806)
 Information: Skipping clock gating on design SNPS_CLOCK_GATE_HIGH_register_file_DATA_W32_0, since there are no registers. (PWR-806)
-Information: Skipping clock gating on design alu_DATA_W32_RSOP_11, since there are no registers. (PWR-806)
+Information: Skipping clock gating on design alu_DATA_W32_RSOP_12, since there are no registers. (PWR-806)
 Information: Skipping clock gating on design alu_DATA_W32_DW_cmp_J2_0, since there are no registers. (PWR-806)
+Information: Skipping clock gating on design alu_DATA_W32_DW02_mult_J2_0, since there are no registers. (PWR-806)
 Information: Skipping clock gating on design branch_unit_DATA_W32_DW01_add_J2_0, since there are no registers. (PWR-806)
 Information: Skipping clock gating on design SNPS_CLOCK_GATE_HIGH_reg_arstn_en_32_s00000000, since there are no registers. (PWR-806)
-Information: Skipping clock gating on design alu_DATA_W32_DP_OP_17J2_122_5427_J2_0, since there are no registers. (PWR-806)
+Information: Skipping clock gating on design alu_DATA_W32_DP_OP_18J2_122_7468_J2_0, since there are no registers. (PWR-806)
 Information: Skipping clock gating on design mux_2_DATA_W32_1, since there are no registers. (PWR-806)
 Information: Skipping clock gating on design mux_2_DATA_W32_2, since there are no registers. (PWR-806)
 Information: Skipping clock gating on design SNPS_CLOCK_GATE_HIGH_register_file_DATA_W32_1, since there are no registers. (PWR-806)
@@ -1718,36 +1719,36 @@ Threshold voltage group cell usage:
    ELAPSED            WORST NEG   SETUP    DESIGN                              LEAKAGE 
     TIME      AREA      SLACK     COST    RULE COST         ENDPOINT            POWER  
   --------- --------- --------- --------- --------- ------------------------- ---------
-    0:00:09  242976.5      0.00       0.0      69.7                           406329056.0000
-    0:00:09  242976.5      0.00       0.0      69.7                           406329056.0000
-    0:00:09  242976.5      0.00       0.0      69.7                           406329056.0000
-    0:00:10  242976.5      0.00       0.0      69.7                           406329056.0000
+    0:00:13  246673.0      0.00       0.0      63.6                           522848832.0000
+    0:00:13  246673.0      0.00       0.0      63.6                           522848832.0000
+    0:00:13  246673.0      0.00       0.0      63.6                           522848832.0000
+    0:00:13  246673.0      0.00       0.0      63.6                           522848832.0000
 
 Threshold voltage group cell usage:
 >> saed32cell_svt 100.00%
 
   Beginning WLM Backend Optimization
   --------------------------------------
-    0:00:11  242898.0      0.00       0.0       0.3                           403468416.0000
-    0:00:11  242897.2      0.00       0.0       0.3                           403468416.0000
-    0:00:11  242897.2      0.00       0.0       0.3                           403468416.0000
-    0:00:11  242897.2      0.00       0.0       0.3                           403468416.0000
-    0:00:11  242897.2      0.00       0.0       0.3                           403468416.0000
-    0:00:11  242897.2      0.00       0.0       0.3                           403468416.0000
-    0:00:11  242897.2      0.00       0.0       0.3                           403468416.0000
-    0:00:11  242897.2      0.00       0.0       0.3                           403468416.0000
-    0:00:11  242897.2      0.00       0.0       0.3                           403468416.0000
-    0:00:11  242897.2      0.00       0.0       0.3                           403468416.0000
-    0:00:11  242897.2      0.00       0.0       0.3                           403468416.0000
-    0:00:11  242897.2      0.00       0.0       0.3                           403468416.0000
-    0:00:11  242897.2      0.00       0.0       0.3                           403468416.0000
-    0:00:11  242897.2      0.00       0.0       0.3                           403468416.0000
-    0:00:11  242897.2      0.00       0.0       0.3                           403468416.0000
-    0:00:11  242897.2      0.00       0.0       0.3                           403468416.0000
-    0:00:11  242897.2      0.00       0.0       0.3                           403468416.0000
-    0:00:11  242897.2      0.00       0.0       0.3                           403468416.0000
-    0:00:11  242897.2      0.00       0.0       0.3                           403468416.0000
-    0:00:11  242897.2      0.00       0.0       0.3                           403468416.0000
+    0:00:14  246556.6      0.00       0.0       0.3                           518234208.0000
+    0:00:15  246556.1      0.00       0.0       0.3                           518234208.0000
+    0:00:15  246556.1      0.00       0.0       0.3                           518234208.0000
+    0:00:15  246556.1      0.00       0.0       0.3                           518234208.0000
+    0:00:15  246556.1      0.00       0.0       0.3                           518234208.0000
+    0:00:15  246556.1      0.00       0.0       0.3                           518234208.0000
+    0:00:15  246556.1      0.00       0.0       0.3                           518234208.0000
+    0:00:15  246556.1      0.00       0.0       0.3                           518234208.0000
+    0:00:15  246556.1      0.00       0.0       0.3                           518234208.0000
+    0:00:15  246556.1      0.00       0.0       0.3                           518234208.0000
+    0:00:15  246556.1      0.00       0.0       0.3                           518234208.0000
+    0:00:15  246556.1      0.00       0.0       0.3                           518234208.0000
+    0:00:15  246556.1      0.00       0.0       0.3                           518234208.0000
+    0:00:15  246556.1      0.00       0.0       0.3                           518234208.0000
+    0:00:15  246556.1      0.00       0.0       0.3                           518234208.0000
+    0:00:15  246556.1      0.00       0.0       0.3                           518234208.0000
+    0:00:15  246556.1      0.00       0.0       0.3                           518234208.0000
+    0:00:15  246556.1      0.00       0.0       0.3                           518234208.0000
+    0:00:15  246556.1      0.00       0.0       0.3                           518234208.0000
+    0:00:15  246556.1      0.00       0.0       0.3                           518234208.0000
 
 
   Beginning Design Rule Fixing  (max_transition)
@@ -1757,12 +1758,12 @@ Threshold voltage group cell usage:
    ELAPSED            WORST NEG   SETUP    DESIGN                              LEAKAGE 
     TIME      AREA      SLACK     COST    RULE COST         ENDPOINT            POWER  
   --------- --------- --------- --------- --------- ------------------------- ---------
-    0:00:11  242897.2      0.00       0.0       0.3                           403468416.0000
+    0:00:15  246556.1      0.00       0.0       0.3                           518234208.0000
   Global Optimization (Phase 32)
   Global Optimization (Phase 33)
   Global Optimization (Phase 34)
-    0:00:11  242897.2      0.00       0.0       0.3                           403468416.0000
-    0:00:11  242897.2      0.00       0.0       0.3                           403468416.0000
+    0:00:15  246556.1      0.00       0.0       0.3                           518234208.0000
+    0:00:15  246556.1      0.00       0.0       0.3                           518234208.0000
 
 Threshold voltage group cell usage:
 >> saed32cell_svt 100.00%
@@ -1775,7 +1776,7 @@ Threshold voltage group cell usage:
    ELAPSED            WORST NEG   SETUP    DESIGN                              LEAKAGE 
     TIME      AREA      SLACK     COST    RULE COST         ENDPOINT            POWER  
   --------- --------- --------- --------- --------- ------------------------- ---------
-    0:00:11  242897.2      0.00       0.0       0.3                           403468416.0000
+    0:00:15  246556.1      0.00       0.0       0.3                           518234208.0000
   Global Optimization (Phase 35)
   Global Optimization (Phase 36)
   Global Optimization (Phase 37)
@@ -1786,42 +1787,44 @@ Threshold voltage group cell usage:
   Global Optimization (Phase 42)
   Global Optimization (Phase 43)
   Global Optimization (Phase 44)
-    0:00:11  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:11  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:11  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
+  Global Optimization (Phase 45)
+    0:00:15  246552.8      0.00       0.0       0.3                           518109152.0000
+    0:00:15  246552.8      0.00       0.0       0.3                           518109152.0000
+    0:00:15  246552.8      0.00       0.0       0.3                           518109152.0000
+    0:00:15  246552.8      0.00       0.0       0.3                           518109152.0000
+    0:00:15  246552.8      0.00       0.0       0.3                           518109152.0000
+    0:00:15  246552.8      0.00       0.0       0.3                           518109152.0000
+    0:00:15  246552.8      0.00       0.0       0.3                           518109152.0000
+    0:00:15  246552.8      0.00       0.0       0.3                           518109152.0000
+    0:00:15  246552.8      0.00       0.0       0.3                           518109152.0000
+    0:00:15  246552.8      0.00       0.0       0.3                           518109152.0000
+    0:00:15  246552.8      0.00       0.0       0.3                           518109152.0000
+    0:00:15  246552.8      0.00       0.0       0.3                           518109152.0000
+    0:00:15  246552.8      0.00       0.0       0.3                           518109152.0000
+    0:00:15  246552.8      0.00       0.0       0.3                           518109152.0000
+    0:00:15  246552.8      0.00       0.0       0.3                           518109152.0000
+    0:00:15  246552.8      0.00       0.0       0.3                           518109152.0000
+    0:00:15  246552.8      0.00       0.0       0.3                           518109152.0000
+    0:00:15  246552.8      0.00       0.0       0.3                           518109152.0000
+    0:00:15  246552.8      0.00       0.0       0.3                           518109152.0000
+    0:00:15  246552.8      0.00       0.0       0.3                           518109152.0000
+    0:00:15  246552.8      0.00       0.0       0.3                           518109152.0000
+    0:00:15  246552.8      0.00       0.0       0.3                           518109152.0000
 
                                   TOTAL                                                
    ELAPSED            WORST NEG   SETUP    DESIGN                              LEAKAGE 
     TIME      AREA      SLACK     COST    RULE COST         ENDPOINT            POWER  
   --------- --------- --------- --------- --------- ------------------------- ---------
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
-    0:00:12  242895.2      0.00       0.0       0.3                           403395712.0000
+    0:00:15  246552.8      0.00       0.0       0.3                           518109152.0000
+    0:00:16  247182.3      0.00       0.0       0.0                           518109152.0000
+    0:00:16  247182.3      0.00       0.0       0.0                           518109152.0000
+    0:00:16  247182.3      0.00       0.0       0.0                           518109152.0000
+    0:00:17  246588.7      0.00       0.0       0.0                           518109152.0000
+    0:00:17  246577.0      0.00       0.0       0.0                           518109152.0000
+    0:00:17  246577.0      0.00       0.0       0.0                           518109152.0000
+    0:00:17  246577.0      0.00       0.0       0.0                           518109152.0000
+    0:00:17  246577.0      0.00       0.0       0.0                           518109152.0000
+    0:00:18  246559.4      0.00       0.0       0.0                           518109152.0000
 
 
 Note: Symbol # after min delay cost means estimated hold TNS across all active scenarios 
@@ -1830,7 +1833,7 @@ Note: Symbol # after min delay cost means estimated hold TNS across all active s
   Optimization Complete
   ---------------------
 Warning: Design 'cpu' contains 1 high-fanout nets. A fanout number of 1000 will be used for delay calculations involving these nets. (TIM-134)
-     Net 'net5987': 1033 load(s), 1 driver(s)
+     Net 'net9078': 1033 load(s), 1 driver(s)
   Loading target library 'saed32sram_tt1p05v25c'
 Information: State dependent leakage is now switched from off to on.
 Information: Propagating switching activity (low effort zero delay simulation). (PWR-6)
@@ -1842,7 +1845,7 @@ report_resources -hierarchy -minpower
 Report : resources
 Design : cpu
 Version: N-2017.09-SP3
-Date   : Thu Mar 12 11:11:11 2020
+Date   : Thu Mar 12 11:57:43 2020
 ****************************************
 
 
@@ -1976,7 +1979,7 @@ check_design
 ****************************************
 check_design summary:
 Version:     N-2017.09-SP3
-Date:        Thu Mar 12 11:11:11 2020
+Date:        Thu Mar 12 11:57:43 2020
 ****************************************
 
                    Name                                            Total

@@ -100,6 +100,11 @@
 /esat/micas-data/software/synopsys_2017.09/libraries/syn/gtech.db
 /esat/micas-data/software/synopsys_2017.09/libraries/syn/standard.sldb
 /users/students/r0669247/Documents/CA_exercise2020/SYNTHESIS/design_constraints.sdc
+/users/students/r0669247/synopsys_cache_N-2017.09-SP3/DW01/DW01_add/rpl/32/generic_5019/element.ddc
+/users/students/r0669247/synopsys_cache_N-2017.09-SP3/DW01/DW_leftsh/astr/32/5/saed32sram_tt1p05v25c_980/8167_8167/mapped.ddc
+/users/students/r0669247/synopsys_cache_N-2017.09-SP3/DW01/DW_rightsh/astr/32/5/saed32sram_tt1p05v25c_980/8167_8167/mapped.ddc
+/users/students/r0669247/synopsys_cache_N-2017.09-SP3/DW01/DW01_sub/rpl/32/generic_5019/element.ddc
+/users/students/r0669247/synopsys_cache_N-2017.09-SP3/DW01/DW01_cmp2/rpl/32/generic_5019/element.ddc
 /users/micas/micas/design/generic/synopsys_32nm/SAED32_EDK/lib/sram/db_ccs/saed32sram_tt1p05v25c.db
 /users/students/r0669247/Documents/CA_exercise2020/SYNTHESIS/alib-52/saed32sram_tt1p05v25c.db.alib
 /users/micas/micas/design/generic/synopsys_32nm/SAED32_EDK/lib/stdcell_rvt/db_ccs/saed32rvt_tt1p05v25c.db
