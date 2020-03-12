@@ -15,14 +15,15 @@ module alu_control(
    parameter [1:0] R_TYPE_OPCODE = 2'd2;
    //The alu control codes can be found
    //in chapter 4.4 of the book.
-   parameter [3:0] AND_OP        = 4'd0;
-   parameter [3:0] OR_OP         = 4'd1;
-   parameter [3:0] ADD_OP        = 4'd2;
-   parameter [3:0] SLL_OP        = 4'd3;
-   parameter [3:0] SRL_OP        = 4'd4;
-   parameter [3:0] SUB_OP        = 4'd5;
-   parameter [3:0] SLT_OP        = 4'd7;
-   parameter [3:0] NOR_OP        = 4'd12; 
+   parameter [3:0] AND_OP = 4'd0;
+   parameter [3:0]  OR_OP = 4'd1;
+   parameter [3:0] ADD_OP = 4'd2;
+   parameter [3:0] SLL_OP = 4'd3;
+   parameter [3:0] SRL_OP = 4'd4;
+   parameter [3:0] SUB_OP = 4'd5;
+   parameter [3:0] MUL_OP = 4'd6;
+   parameter [3:0] SLT_OP = 4'd7;
+   parameter [3:0] NOR_OP = 4'd12;
    //The decoding of the instruction funtion field into the desired
    //alu operation can be found in Figure 4.12 of the Patterson Book,
    //section 4.4
@@ -34,6 +35,7 @@ module alu_control(
    parameter [5:0] FUNC_SLT      = 6'b101010;
    parameter [5:0] FUNC_SLL      = 6'b000000;
    parameter [5:0] FUNC_SRL      = 6'b000010;
+   parameter [5:0] FUNC_MUL      = 6'b011000;
 
 	reg [3:0] rtype_op;
 
@@ -47,6 +49,7 @@ module alu_control(
 		   FUNC_SLT	:  rtype_op = SLT_OP;
 		   FUNC_SLL	:  rtype_op = SLL_OP;
 		   FUNC_SRL	:  rtype_op = SRL_OP;
+		   FUNC_MUL     :  rtype_op = MUL_OP;
 			default:    rtype_op = 4'd0;
 		endcase
 	end
