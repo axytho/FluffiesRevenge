@@ -65,7 +65,7 @@ pc #(
    .jump      (jump      ),
    .current_pc(current_pc),
    .enable    (enable    ),
-   .updated_pc(updated_pc)
+   .updated_pc(updated_pc_in_pipeline)
 );
 
 
@@ -78,12 +78,32 @@ sram #(
    .wen      (1'b0          ),
    .ren      (1'b1          ),
    .wdata    (32'b0         ),
-   .rdata    (instruction   ),   
+   .rdata    (instruction_in_pipeline   ),   
    .addr_ext (addr_ext      ),
    .wen_ext  (wen_ext       ), 
    .ren_ext  (ren_ext       ),
    .wdata_ext(wdata_ext     ),
    .rdata_ext(rdata_ext     )
+);
+
+
+
+reg_arst_en	#(.DATA_W(32))
+instruction_pipe (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (instruction_in_pipeline),
+    .en    (enable),
+    .dout  (instruction)
+);
+
+reg_arst_en	#(.DATA_W(32))
+updated_pc_pc_plus_4 (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (updated_pc_in_pipeline),
+    .en    (enable),
+    .dout  (updated_pc)
 );
 
 control_unit control_unit(
