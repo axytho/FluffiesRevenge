@@ -36,21 +36,23 @@ module cpu(
 
    );
 
-wire              zero_flag;
+wire              zero_flag, zero_flag_in_pipeline;
 wire [      31:0] branch_pc,updated_pc,current_pc,jump_pc,
-                  instruction;
+                  instruction, updated_pc_in_pipeline, regfile_data_1_in_pipeline, regfile_data_2_in_pipeline,
+                  branch_pc_in_pipeline, jump_pc_in_the_pipeline;
 wire [       1:0] alu_op;
-wire [       3:0] alu_control;
-wire              reg_dst,branch,mem_read,mem_2_reg,
-                  mem_write,alu_src, reg_write, jump;
+wire [       3:0] alu_control, alu_control_in_pipeline;
+wire              reg_dst,branch,mem_read,mem_2_reg, reg_write,
+                  mem_write,alu_src,  jump, branch_in_pipeline, mem_read_in_pipeline, mem_2_reg_in_pipeline, mem_write_in_pipeline,alu_src_in_pipeline,   jump_in_pipeline,
+                  mem_write_in_pipeline_2, mem_2_reg_in_pipeline_2, mem_2_reg_in_pipeline_3;
 wire [       4:0] regfile_waddr;
-wire [      31:0] regfile_wdata, dram_data,alu_out,
+wire [      31:0] regfile_wdata, dram_data, dram_data_in_pipeline,alu_out, alu_out_in_pipeline, alu_out_in_pipeline_2,
                   regfile_data_1,regfile_data_2,
                   alu_operand_2;
 
-wire signed [31:0] immediate_extended;
+wire signed [31:0] immediate_extended_in_pipeline, immediate_extended;
 
-assign immediate_extended = $signed(instruction[15:0]);
+assign immediate_extended_in_pipeline = $signed(instruction[15:0]);
 
 
 pc #(
@@ -106,17 +108,21 @@ updated_pc_pc_plus_4 (
     .dout  (updated_pc)
 );
 
+
+
+
+
 control_unit control_unit(
    .opcode   (instruction[31:26]),
    .reg_dst  (reg_dst           ),
-   .branch   (branch            ),
-   .mem_read (mem_read          ),
-   .mem_2_reg(mem_2_reg         ),
+   .branch   (branch_in_pipeline            ),
+   .mem_read (mem_read_in_pipeline          ),
+   .mem_2_reg(mem_2_reg_in_pipeline         ),
    .alu_op   (alu_op            ),
-   .mem_write(mem_write         ),
-   .alu_src  (alu_src           ),
-   .reg_write(reg_write         ),
-   .jump     (jump              )
+   .mem_write(mem_write_in_pipeline         ),
+   .alu_src  (alu_src_in_pipeline           ),
+   .reg_write(reg_write        ),
+   .jump     (jump_in_pipeline              )
 );
 
 
@@ -139,16 +145,116 @@ register_file #(
    .raddr_2  (instruction[20:16]),
    .waddr    (regfile_waddr     ),
    .wdata    (regfile_wdata     ),
-   .rdata_1  (regfile_data_1    ),
-   .rdata_2  (regfile_data_2    )
+   .rdata_1  (regfile_data_1_in_pipeline    ),
+   .rdata_2  (regfile_data_2_in_pipeline    )
 );
+
+reg_arst_en	#(.DATA_W(32))
+read_data_1_reg (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (regfile_data_1_in_pipeline),
+    .en    (enable),
+    .dout  (regfile_data_1)
+);
+
+
+reg_arst_en	#(.DATA_W(32))
+read_data_2_reg (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (regfile_data_2_in_pipeline),
+    .en    (enable),
+    .dout  (regfile_data_2)
+);
+
+reg_arst_en	#(.DATA_W(32))
+immediate_extend_reg (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (immediate_extended_in_pipeline),
+    .en    (enable),
+    .dout  (immediate_extended)
+);
+
+
+reg_arst_en	#(.DATA_W(1))
+branch_in_reg (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (branch_in_pipeline),
+    .en    (enable),
+    .dout  (branch)
+);
+
+reg_arst_en	#(.DATA_W(1))
+mem_read_in_reg (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (mem_read_in_pipeline),
+    .en    (enable),
+    .dout  (mem_read)
+);
+
+reg_arst_en	#(.DATA_W(1))
+mem_2_reg_in_reg (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (mem_2_reg_in_pipeline),
+    .en    (enable),
+    .dout  (mem_2_reg_in_pipeline_2)
+);
+
+reg_arst_en	#(.DATA_W(1))
+mem_write_in_reg (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (mem_write_in_pipeline),
+    .en    (enable),
+    .dout  (mem_write_in_pipeline_2)
+);
+
+reg_arst_en	#(.DATA_W(1))
+alu_src_in_reg (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (alu_src_in_pipeline),
+    .en    (enable),
+    .dout  (alu_src)
+);
+
+
+
+reg_arst_en	#(.DATA_W(1))
+jump_reg (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (jump_in_pipeline),
+    .en    (enable),
+    .dout  (jump)
+);
+
+reg_arst_en	#(.DATA_W(4))
+alu_control_reg (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (alu_control_in_pipeline),
+    .en    (enable),
+    .dout  (alu_control)
+);
+
+
 
 
 alu_control alu_ctrl(
    .function_field (instruction[5:0]),
    .alu_op         (alu_op          ),
-   .alu_control    (alu_control     )
+   .alu_control    (alu_control_in_pipeline     )
 );
+
+
+
+
 
 mux_2 #(
    .DATA_W(32)
@@ -166,11 +272,78 @@ alu#(
    .alu_in_0 (regfile_data_1),
    .alu_in_1 (alu_operand_2 ),
    .alu_ctrl (alu_control   ),
-   .alu_out  (alu_out       ),
+   .alu_out  (alu_out_in_pipeline       ),
    .shft_amnt(instruction[10:6]),
-   .zero_flag(zero_flag     ),
+   .zero_flag(zero_flag_in_pipeline     ),
    .overflow (              )
 );
+
+branch_unit#(
+   .DATA_W(32)
+)branch_unit(
+   .updated_pc   (updated_pc        ),
+   .instruction  (instruction       ),
+   .branch_offset(immediate_extended),
+   .branch_pc    (branch_pc_in_pipeline         ),
+   .jump_pc      (jump_pc         )
+);
+
+reg_arst_en	#(.DATA_W(32))
+branch_pc_reg (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (branch_pc_in_pipeline),
+    .en    (enable),
+    .dout  (branch_pc)
+);
+
+
+reg_arst_en	#(.DATA_W(32))
+jump_pc_reg (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (jump_pc_in_pipeline),
+    .en    (enable),
+    .dout  (jump_pc)
+);
+
+
+reg_arst_en	#(.DATA_W(32))
+alu_op_reg (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (alu_out_in_pipeline),
+    .en    (enable),
+    .dout  (alu_out_in_pipeline_2)
+);
+
+reg_arst_en	#(.DATA_W(1))
+zero_reg (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (zero_flag_in_pipeline),
+    .en    (enable),
+    .dout  (zero_flag)
+);
+
+reg_arst_en	#(.DATA_W(1))
+mem_2_reg_in_reg_2 (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (mem_2_reg_in_pipeline_2),
+    .en    (enable),
+    .dout  (mem_2_reg_in_pipeline_3)
+);
+
+reg_arst_en	#(.DATA_W(1))
+mem_write_in_reg_2 (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (mem_write_in_pipeline_2),
+    .en    (enable),
+    .dout  (mem_write)
+);
+
 
 sram #(
    .ADDR_W(10),
@@ -181,7 +354,7 @@ sram #(
    .wen      (mem_write     ),
    .ren      (mem_read      ),
    .wdata    (regfile_data_2),
-   .rdata    (dram_data     ),   
+   .rdata    (dram_data_in_pipeline     ),   
    .addr_ext (addr_ext_2    ),
    .wen_ext  (wen_ext_2     ),
    .ren_ext  (ren_ext_2     ),
@@ -200,17 +373,33 @@ mux_2 #(
    .mux_out  (regfile_wdata)
 );
 
-
-
-branch_unit#(
-   .DATA_W(32)
-)branch_unit(
-   .updated_pc   (updated_pc        ),
-   .instruction  (instruction       ),
-   .branch_offset(immediate_extended),
-   .branch_pc    (branch_pc         ),
-   .jump_pc      (jump_pc         )
+reg_arst_en	#(.DATA_W(32))
+dram_data_reg (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (dram_data_in_pipeline),
+    .en    (enable),
+    .dout  (dram_data)
 );
+
+reg_arst_en	#(.DATA_W(32))
+alu_out_reg_2 (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (alu_out_in_pipeline_2),
+    .en    (enable),
+    .dout  (alu_out)
+);
+
+reg_arst_en	#(.DATA_W(1))
+mem_2_reg_in_reg_3 (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (mem_2_reg_in_pipeline_3),
+    .en    (enable),
+    .dout  (mem_2_reg)
+);
+
 
 
 endmodule
