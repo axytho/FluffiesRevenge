@@ -38,8 +38,8 @@ module cpu(
 
 wire              zero_flag, zero_flag_in_pipeline;
 wire [      31:0] branch_pc,updated_pc,current_pc,jump_pc,
-                  instruction, updated_pc_in_pipeline, regfile_data_1_in_pipeline, regfile_data_2_in_pipeline,
-                  branch_pc_in_pipeline, jump_pc_in_the_pipeline;
+                  instruction, instruction_in_pipeline, updated_pc_in_pipeline, regfile_data_1_in_pipeline, regfile_data_2_in_pipeline,
+                  branch_pc_in_pipeline, jump_pc_in_pipeline;
 wire [       1:0] alu_op;
 wire [       3:0] alu_control, alu_control_in_pipeline;
 wire              reg_dst,branch,mem_read,mem_2_reg, reg_write,
@@ -90,7 +90,7 @@ sram #(
 
 
 
-reg_arst_en	#(.DATA_W(32))
+reg_arstn_en	#(.DATA_W(32))
 instruction_pipe (
     .clk (clk ),
     .arst_n(arst_n  ),
@@ -99,7 +99,7 @@ instruction_pipe (
     .dout  (instruction)
 );
 
-reg_arst_en	#(.DATA_W(32))
+reg_arstn_en	#(.DATA_W(32))
 updated_pc_pc_plus_4 (
     .clk (clk ),
     .arst_n(arst_n  ),
@@ -135,6 +135,10 @@ mux_2 #(
    .mux_out (regfile_waddr     )
 );
 
+
+
+
+
 register_file #(
    .DATA_W(32)
 ) register_file(
@@ -149,7 +153,7 @@ register_file #(
    .rdata_2  (regfile_data_2_in_pipeline    )
 );
 
-reg_arst_en	#(.DATA_W(32))
+reg_arstn_en	#(.DATA_W(32))
 read_data_1_reg (
     .clk (clk ),
     .arst_n(arst_n  ),
@@ -159,7 +163,7 @@ read_data_1_reg (
 );
 
 
-reg_arst_en	#(.DATA_W(32))
+reg_arstn_en	#(.DATA_W(32))
 read_data_2_reg (
     .clk (clk ),
     .arst_n(arst_n  ),
@@ -168,7 +172,7 @@ read_data_2_reg (
     .dout  (regfile_data_2)
 );
 
-reg_arst_en	#(.DATA_W(32))
+reg_arstn_en	#(.DATA_W(32))
 immediate_extend_reg (
     .clk (clk ),
     .arst_n(arst_n  ),
@@ -178,7 +182,7 @@ immediate_extend_reg (
 );
 
 
-reg_arst_en	#(.DATA_W(1))
+reg_arstn_en	#(.DATA_W(1))
 branch_in_reg (
     .clk (clk ),
     .arst_n(arst_n  ),
@@ -187,7 +191,7 @@ branch_in_reg (
     .dout  (branch)
 );
 
-reg_arst_en	#(.DATA_W(1))
+reg_arstn_en	#(.DATA_W(1))
 mem_read_in_reg (
     .clk (clk ),
     .arst_n(arst_n  ),
@@ -196,7 +200,7 @@ mem_read_in_reg (
     .dout  (mem_read)
 );
 
-reg_arst_en	#(.DATA_W(1))
+reg_arstn_en	#(.DATA_W(1))
 mem_2_reg_in_reg (
     .clk (clk ),
     .arst_n(arst_n  ),
@@ -205,7 +209,7 @@ mem_2_reg_in_reg (
     .dout  (mem_2_reg_in_pipeline_2)
 );
 
-reg_arst_en	#(.DATA_W(1))
+reg_arstn_en	#(.DATA_W(1))
 mem_write_in_reg (
     .clk (clk ),
     .arst_n(arst_n  ),
@@ -214,7 +218,7 @@ mem_write_in_reg (
     .dout  (mem_write_in_pipeline_2)
 );
 
-reg_arst_en	#(.DATA_W(1))
+reg_arstn_en	#(.DATA_W(1))
 alu_src_in_reg (
     .clk (clk ),
     .arst_n(arst_n  ),
@@ -225,7 +229,7 @@ alu_src_in_reg (
 
 
 
-reg_arst_en	#(.DATA_W(1))
+reg_arstn_en	#(.DATA_W(1))
 jump_reg (
     .clk (clk ),
     .arst_n(arst_n  ),
@@ -234,7 +238,7 @@ jump_reg (
     .dout  (jump)
 );
 
-reg_arst_en	#(.DATA_W(4))
+reg_arstn_en	#(.DATA_W(4))
 alu_control_reg (
     .clk (clk ),
     .arst_n(arst_n  ),
@@ -285,10 +289,10 @@ branch_unit#(
    .instruction  (instruction       ),
    .branch_offset(immediate_extended),
    .branch_pc    (branch_pc_in_pipeline         ),
-   .jump_pc      (jump_pc         )
+   .jump_pc      (jump_pc_in_pipeline         )
 );
 
-reg_arst_en	#(.DATA_W(32))
+reg_arstn_en	#(.DATA_W(32))
 branch_pc_reg (
     .clk (clk ),
     .arst_n(arst_n  ),
@@ -298,7 +302,7 @@ branch_pc_reg (
 );
 
 
-reg_arst_en	#(.DATA_W(32))
+reg_arstn_en	#(.DATA_W(32))
 jump_pc_reg (
     .clk (clk ),
     .arst_n(arst_n  ),
@@ -308,7 +312,7 @@ jump_pc_reg (
 );
 
 
-reg_arst_en	#(.DATA_W(32))
+reg_arstn_en	#(.DATA_W(32))
 alu_op_reg (
     .clk (clk ),
     .arst_n(arst_n  ),
@@ -317,7 +321,7 @@ alu_op_reg (
     .dout  (alu_out_in_pipeline_2)
 );
 
-reg_arst_en	#(.DATA_W(1))
+reg_arstn_en	#(.DATA_W(1))
 zero_reg (
     .clk (clk ),
     .arst_n(arst_n  ),
@@ -326,7 +330,7 @@ zero_reg (
     .dout  (zero_flag)
 );
 
-reg_arst_en	#(.DATA_W(1))
+reg_arstn_en	#(.DATA_W(1))
 mem_2_reg_in_reg_2 (
     .clk (clk ),
     .arst_n(arst_n  ),
@@ -335,7 +339,7 @@ mem_2_reg_in_reg_2 (
     .dout  (mem_2_reg_in_pipeline_3)
 );
 
-reg_arst_en	#(.DATA_W(1))
+reg_arstn_en	#(.DATA_W(1))
 mem_write_in_reg_2 (
     .clk (clk ),
     .arst_n(arst_n  ),
@@ -373,7 +377,7 @@ mux_2 #(
    .mux_out  (regfile_wdata)
 );
 
-reg_arst_en	#(.DATA_W(32))
+reg_arstn_en	#(.DATA_W(32))
 dram_data_reg (
     .clk (clk ),
     .arst_n(arst_n  ),
@@ -382,7 +386,7 @@ dram_data_reg (
     .dout  (dram_data)
 );
 
-reg_arst_en	#(.DATA_W(32))
+reg_arstn_en	#(.DATA_W(32))
 alu_out_reg_2 (
     .clk (clk ),
     .arst_n(arst_n  ),
@@ -391,7 +395,7 @@ alu_out_reg_2 (
     .dout  (alu_out)
 );
 
-reg_arst_en	#(.DATA_W(1))
+reg_arstn_en	#(.DATA_W(1))
 mem_2_reg_in_reg_3 (
     .clk (clk ),
     .arst_n(arst_n  ),
