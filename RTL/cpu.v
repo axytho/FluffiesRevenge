@@ -354,7 +354,7 @@ sram #(
    .DATA_W(32)
 ) data_memory(
    .clk      (clk           ),
-   .addr     (alu_out       ),
+   .addr     (alu_out       ), //should this not be alu_out_in_pipeline instead of alu_out? 
    .wen      (mem_write     ),
    .ren      (mem_read      ),
    .wdata    (regfile_data_2),
