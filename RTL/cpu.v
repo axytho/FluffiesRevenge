@@ -595,7 +595,7 @@ forwarding_unit forwarding_unit(
 		.IdExRegisterRs  (instruction_in_pipeline_3[25:21] ),
 		.IdExRegisterRt  (instruction_in_pipeline_3[20:16] ),
 		.MemWbRegisterRd (              instruction[20:16] ),
-		.memForwardA     (              memForward         ),
+		.memForward      (              memForward         ),
 		.forwardA        (                 forwardA        ),
 		.forwardB        (                 forwardB        )
    );
