@@ -392,7 +392,7 @@ mux_2 #(
 
 mux_2 #(
    .DATA_W(32)
-) operand_A_mux (
+) operand_B_mux (
    .input_a (alu_bypassing           ),
    .input_b (alu_operand_B           ),
    .select_a(forwardB                ),
