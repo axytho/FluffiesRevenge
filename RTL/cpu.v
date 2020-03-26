@@ -607,5 +607,40 @@ hazard_detection_unit hazard_detection_unit(
 		.stall           (                    stall        )
    );
 endmodule
+module forwarding_unit(
+		input  wire 		 ExMemRegwrite,
+		input  wire 		 MemWbregwrite,
+		input  wire [4:0]    ExMemRegisterRd,
+		input  wire [4:0]    IdExRegisterRs,
+		input  wire [4:0]    IdExRegisterRt,
+		input  wire [4:0]    MemWbRegisterRd,
+		output wire          memForward,
+		output wire          forwardA,
+		output wire          forwardB
+   );
+	wire aluForwardA,aluForwardB,memForwardB,memForwardA;
+	assign memForwardA = MemWbregwrite & (MemWbRegisterRd == IdExRegisterRs);
+	assign memForwardB = MemWbregwrite & (MemWbRegisterRd == IdExRegisterRt);
+	assign memForward  = memForwardA   | memForwardB;
+	assign aluForwardA = ExMemRegwrite & (ExMemRegisterRd == IdExRegisterRs);
+	assign aluForwardB = ExMemRegwrite & (ExMemRegisterRd == IdExRegisterRt);
+	assign forwardA    = memForwardA   |  aluForwardA;
+	assign forwardB    = memForwardB   |  aluForwardB;
 
+endmodule
+module hazard_detection_unit(
+		input  wire 		 IdExMemread,
+		input  wire [4:0]    IdExRegisterRt,
+		input  wire [4:0]    IfIdRegisterRt,
+		input  wire [4:0]    IfIdRegisterRs,
+		output wire          stall 
+   );
+	wire stall1;
+	wire stall2;
+	wire stall3;
+	assign stall1 = ( IdExRegisterRt == IfIdRegisterRt );
+	assign stall2 = ( IdExRegisterRt == IfIdRegisterRs );
+	assign stall3 = ( stall1         |  stall2         );
+	assign stall  = ( stall3         &  IdExMemread    ); 
+endmodule
 
