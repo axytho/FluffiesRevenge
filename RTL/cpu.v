@@ -49,24 +49,32 @@ wire [       4:0] regfile_waddr;
 wire [      31:0] regfile_wdata, dram_data, dram_data_in_pipeline,alu_out, alu_out_in_pipeline, alu_out_in_pipeline_2,
                   regfile_data_1,regfile_data_2,
                   alu_operand_2;
+ 
 
 wire signed [31:0] immediate_extended_in_pipeline, immediate_extended;
 
 assign immediate_extended_in_pipeline = $signed(instruction_in_pipeline_2[15:0]);
 
+wire memForward,forwardA,forwardB,stall, enable_hazard;
+wire [31:0] alu_bypassing,alu_operand_1,alu_operand_B;
+
+wire branch_in_mux,mem_read_in_mux,mem_2_reg_in_mux,mem_write_in_mux,reg_write_in_mux;
+wire jump_in_mux;
+assign enable_hazard = enable & (~stall); //temporarily disable registers to stall
+
 
 pc #(
    .DATA_W(32)
 ) program_counter (
-   .clk       (clk       ),
-   .arst_n    (arst_n    ),
-   .branch_pc (branch_pc ),
-   .jump_pc   (jump_pc   ),
-   .zero_flag (zero_flag ),
-   .branch    (branch    ),
-   .jump      (jump      ),
-   .current_pc(current_pc),
-   .enable    (enable    ),
+   .clk       (clk                   ),
+   .arst_n    (arst_n                ),
+   .branch_pc (branch_pc             ),
+   .jump_pc   (jump_pc               ),
+   .zero_flag (zero_flag             ),
+   .branch    (branch                ),
+   .jump      (jump                  ),
+   .current_pc(current_pc            ),
+   .enable    (enable_hazard         ), //don't update if stall 
    .updated_pc(updated_pc_in_pipeline)
 );
 
@@ -95,7 +103,7 @@ instruction_pipe (
     .clk (clk ),
     .arst_n(arst_n  ),
     .din   (instruction_in_pipeline),
-    .en    (enable),
+    .en    (enable_hazard),
     .dout  (instruction_in_pipeline_2)
 );
 
@@ -104,7 +112,7 @@ updated_pc_pc_plus_4 (
     .clk (clk ),
     .arst_n(arst_n  ),
     .din   (updated_pc_in_pipeline),
-    .en    (enable),
+    .en    (enable_hazard),
     .dout  (updated_pc_in_pipeline_2)
 );
 
@@ -115,14 +123,69 @@ updated_pc_pc_plus_4 (
 control_unit control_unit(
    .opcode   (instruction_in_pipeline_2[31:26]),
    .reg_dst  (reg_dst_in_pipeline           ),
-   .branch   (branch_in_pipeline            ),
-   .mem_read (mem_read_in_pipeline          ),
-   .mem_2_reg(mem_2_reg_in_pipeline         ),
-   .alu_op   (alu_op            ),
-   .mem_write(mem_write_in_pipeline         ),
+   .branch   (branch_in_mux                 ),
+   .mem_read (mem_read_in_mux               ),
+   .mem_2_reg(mem_2_reg_in_mux              ),
+   .alu_op   (alu_op                        ),
+   .mem_write(mem_write_in_mux              ),
    .alu_src  (alu_src_in_pipeline           ),
-   .reg_write(reg_write_in_pipeline        ),
-   .jump     (jump_in_pipeline              )
+   .reg_write(reg_write_in_mux              ),
+   .jump     (jump_in_mux                   )
+);
+
+mux_2 #(
+   .DATA_W(1)
+) branch_stall_mux (
+   .input_a (1'b0               ), 
+   .input_b (branch_in_mux      ),
+   .select_a(stall              ),
+   .mux_out (branch_in_pipeline )
+);
+
+mux_2 #(
+   .DATA_W(1)
+) mem_read_stall_mux (
+   .input_a (1'b0                ), 
+   .input_b (mem_read_in_mux     ),
+   .select_a(stall               ),
+   .mux_out (mem_read_in_pipeline)
+);
+
+mux_2 #(
+   .DATA_W(1)
+) mem_2_reg_stall_mux (
+   .input_a (1'b0                  ), 
+   .input_b (mem_2_reg_in_mux      ),
+   .select_a(stall                 ),
+   .mux_out (mem_2_reg_in_pipeline )
+);
+
+mux_2 #(
+   .DATA_W(1)
+) mem_write_stall_mux (
+   .input_a (1'b0                  ), 
+   .input_b (mem_write_in_mux      ),
+   .select_a(stall                 ),
+   .mux_out (mem_write_in_pipeline )
+);
+
+
+mux_2 #(
+   .DATA_W(1)
+) reg_write_stall_mux (
+   .input_a (1'b0                  ), 
+   .input_b (reg_write_in_mux      ),
+   .select_a(stall                 ),
+   .mux_out (reg_write_in_pipeline )
+);
+
+mux_2 #(
+   .DATA_W(1)
+) jump_stall_mux (
+   .input_a (1'b0                  ), 
+   .input_b (jump_in_mux           ),
+   .select_a(stall                 ),
+   .mux_out (jump_in_pipeline      )
 );
 
 alu_control alu_ctrl(
@@ -294,6 +357,26 @@ instruction_pipe_2 (
 
 
 
+mux_2 #(
+   .DATA_W(32)
+) bypassing_A_mux (
+   .input_a (regfile_wdata            ),
+   .input_b (alu_out_in_pipeline_2    ),
+   .select_a(memForward               ),
+   .mux_out (alu_bypassing            )
+);
+
+
+mux_2 #(
+   .DATA_W(32)
+) operand_A_mux (
+   .input_a (alu_bypassing              ),
+   .input_b (regfile_data_1             ),
+   .select_a(forwardA                   ),
+   .mux_out (alu_operand_1              )
+);
+
+
 
 mux_2 #(
    .DATA_W(32)
@@ -301,14 +384,26 @@ mux_2 #(
    .input_a (immediate_extended),
    .input_b (regfile_data_2    ),
    .select_a(alu_src           ),
-   .mux_out (alu_operand_2     )
+   .mux_out (alu_operand_B     )
+);
+
+
+
+
+mux_2 #(
+   .DATA_W(32)
+) operand_A_mux (
+   .input_a (alu_bypassing           ),
+   .input_b (alu_operand_B           ),
+   .select_a(forwardB                ),
+   .mux_out (alu_operand_2           )
 );
 
 
 alu#(
    .DATA_W(32)
 ) alu(
-   .alu_in_0 (regfile_data_1),
+   .alu_in_0 (alu_operand_1),
    .alu_in_1 (alu_operand_2 ),
    .alu_ctrl (alu_control   ),
    .alu_out  (alu_out_in_pipeline       ),
@@ -493,8 +588,24 @@ mux_2 #( //WRITEBACK STAGE
    .mux_out  (regfile_wdata)
 );
 
-
-
+forwarding_unit forwarding_unit(
+		.ExMemRegwrite   (  reg_write_in_pipeline_3        ),
+		.MemWbregwrite   (                reg_write        ),
+		.ExMemRegisterRd (instruction_in_pipeline_4[15:11] ),
+		.IdExRegisterRs  (instruction_in_pipeline_3[25:21] ),
+		.IdExRegisterRt  (instruction_in_pipeline_3[20:16] ),
+		.MemWbRegisterRd (              instruction[20:16] ),
+		.memForwardA     (              memForward         ),
+		.forwardA        (                 forwardA        ),
+		.forwardB        (                 forwardB        )
+   );
+hazard_detection_unit hazard_detection_unit(
+		.IdExMemread     (  mem_2_reg_in_pipeline_2        ),
+		.IdExRegisterRt  (instruction_in_pipeline_3[20:16] ),
+		.IfIdRegisterRt  (instruction_in_pipeline_2[20:16] ),
+		.IfIdRegisterRs  (instruction_in_pipeline_2[25:21] ),
+		.stall           (                    stall        )
+   );
 endmodule
 
 
