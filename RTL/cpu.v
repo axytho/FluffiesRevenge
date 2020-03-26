@@ -38,11 +38,11 @@ module cpu(
 
 wire              zero_flag, zero_flag_in_pipeline;
 wire [      31:0] branch_pc,updated_pc,current_pc,jump_pc,
-                  instruction, instruction_in_pipeline, updated_pc_in_pipeline, regfile_data_1_in_pipeline, regfile_data_2_in_pipeline,
+                  instruction, instruction_in_pipeline, instruction_in_pipeline_2, instruction_in_pipeline_3, instruction_in_pipeline_4, updated_pc_in_pipeline, updated_pc_in_pipeline_2, regfile_data_1_in_pipeline, regfile_data_2_in_pipeline,
                   branch_pc_in_pipeline, jump_pc_in_pipeline;
 wire [       1:0] alu_op;
 wire [       3:0] alu_control, alu_control_in_pipeline;
-wire              reg_dst,branch,mem_read,mem_2_reg, reg_write,
+wire              reg_dst, reg_dst_in_pipeline, reg_dst_in_pipeline_2, reg_dst_in_pipeline_3,  branch,mem_read,mem_2_reg, reg_write, reg_write_in_pipeline, reg_write_in_pipeline_2, reg_write_in_pipeline_3, 
                   mem_write,alu_src,  jump, branch_in_pipeline, mem_read_in_pipeline, mem_2_reg_in_pipeline, mem_write_in_pipeline,alu_src_in_pipeline,   jump_in_pipeline,
                   mem_write_in_pipeline_2, mem_2_reg_in_pipeline_2, mem_2_reg_in_pipeline_3;
 wire [       4:0] regfile_waddr;
@@ -52,7 +52,7 @@ wire [      31:0] regfile_wdata, dram_data, dram_data_in_pipeline,alu_out, alu_o
 
 wire signed [31:0] immediate_extended_in_pipeline, immediate_extended;
 
-assign immediate_extended_in_pipeline = $signed(instruction[15:0]);
+assign immediate_extended_in_pipeline = $signed(instruction_in_pipeline_2[15:0]);
 
 
 pc #(
@@ -96,7 +96,7 @@ instruction_pipe (
     .arst_n(arst_n  ),
     .din   (instruction_in_pipeline),
     .en    (enable),
-    .dout  (instruction)
+    .dout  (instruction_in_pipeline_2)
 );
 
 reg_arstn_en	#(.DATA_W(32))
@@ -105,7 +105,7 @@ updated_pc_pc_plus_4 (
     .arst_n(arst_n  ),
     .din   (updated_pc_in_pipeline),
     .en    (enable),
-    .dout  (updated_pc)
+    .dout  (updated_pc_in_pipeline_2)
 );
 
 
@@ -113,23 +113,29 @@ updated_pc_pc_plus_4 (
 
 
 control_unit control_unit(
-   .opcode   (instruction[31:26]),
-   .reg_dst  (reg_dst           ),
+   .opcode   (instruction_in_pipeline_2[31:26]),
+   .reg_dst  (reg_dst_in_pipeline           ),
    .branch   (branch_in_pipeline            ),
    .mem_read (mem_read_in_pipeline          ),
    .mem_2_reg(mem_2_reg_in_pipeline         ),
    .alu_op   (alu_op            ),
    .mem_write(mem_write_in_pipeline         ),
    .alu_src  (alu_src_in_pipeline           ),
-   .reg_write(reg_write        ),
+   .reg_write(reg_write_in_pipeline        ),
    .jump     (jump_in_pipeline              )
+);
+
+alu_control alu_ctrl(
+   .function_field (instruction_in_pipeline_2[5:0]),
+   .alu_op         (alu_op          ),
+   .alu_control    (alu_control_in_pipeline     )
 );
 
 
 mux_2 #(
    .DATA_W(5)
 ) regfile_dest_mux (
-   .input_a (instruction[15:11]),
+   .input_a (instruction[15:11]), //instruction being the instruction loaded 5 cycles ago.
    .input_b (instruction[20:16]),
    .select_a(reg_dst          ),
    .mux_out (regfile_waddr     )
@@ -145,8 +151,8 @@ register_file #(
    .clk      (clk               ),
    .arst_n   (arst_n            ),
    .reg_write(reg_write         ),
-   .raddr_1  (instruction[25:21]),
-   .raddr_2  (instruction[20:16]),
+   .raddr_1  (instruction_in_pipeline_2[25:21]),
+   .raddr_2  (instruction_in_pipeline_2[20:16]),
    .waddr    (regfile_waddr     ),
    .wdata    (regfile_wdata     ),
    .rdata_1  (regfile_data_1_in_pipeline    ),
@@ -238,6 +244,24 @@ jump_reg (
     .dout  (jump)
 );
 
+reg_arstn_en	#(.DATA_W(1))
+reg_dst_1 (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (reg_dst_in_pipeline),
+    .en    (enable),
+    .dout  (reg_dst_in_pipeline_2)
+);
+
+reg_arstn_en	#(.DATA_W(1))
+reg_write_1 (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (reg_write_in_pipeline),
+    .en    (enable),
+    .dout  (reg_write_in_pipeline_2)
+);
+
 reg_arstn_en	#(.DATA_W(4))
 alu_control_reg (
     .clk (clk ),
@@ -247,14 +271,25 @@ alu_control_reg (
     .dout  (alu_control)
 );
 
-
-
-
-alu_control alu_ctrl(
-   .function_field (instruction[5:0]),
-   .alu_op         (alu_op          ),
-   .alu_control    (alu_control_in_pipeline     )
+reg_arstn_en	#(.DATA_W(32))
+updated_pc_pc_plus_4_2 (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (updated_pc_in_pipeline_2),
+    .en    (enable),
+    .dout  (updated_pc)
 );
+
+reg_arstn_en	#(.DATA_W(32))
+instruction_pipe_2 (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (instruction_in_pipeline_2),
+    .en    (enable),
+    .dout  (instruction_in_pipeline_3)
+);
+
+
 
 
 
@@ -277,7 +312,7 @@ alu#(
    .alu_in_1 (alu_operand_2 ),
    .alu_ctrl (alu_control   ),
    .alu_out  (alu_out_in_pipeline       ),
-   .shft_amnt(instruction[10:6]),
+   .shft_amnt(instruction_in_pipeline_3[10:6]),
    .zero_flag(zero_flag_in_pipeline     ),
    .overflow (              )
 );
@@ -286,10 +321,19 @@ branch_unit#(
    .DATA_W(32)
 )branch_unit(
    .updated_pc   (updated_pc        ),
-   .instruction  (instruction       ),
+   .instruction  (instruction_in_pipeline_3       ),
    .branch_offset(immediate_extended),
    .branch_pc    (branch_pc_in_pipeline         ),
    .jump_pc      (jump_pc_in_pipeline         )
+);
+
+reg_arstn_en	#(.DATA_W(32))
+instruction_pipe_3 (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (instruction_in_pipeline_3),
+    .en    (enable),
+    .dout  (instruction_in_pipeline_4)
 );
 
 reg_arstn_en	#(.DATA_W(32))
@@ -348,13 +392,31 @@ mem_write_in_reg_2 (
     .dout  (mem_write)
 );
 
+reg_arstn_en	#(.DATA_W(1))
+reg_dst_2 (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (reg_dst_in_pipeline_2),
+    .en    (enable),
+    .dout  (reg_dst_in_pipeline_3)
+);
+
+reg_arstn_en	#(.DATA_W(1))
+reg_write_2 (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (reg_write_in_pipeline_2),
+    .en    (enable),
+    .dout  (reg_write_in_pipeline_3)
+);
+
 
 sram #(
    .ADDR_W(10),
    .DATA_W(32)
 ) data_memory(
    .clk      (clk           ),
-   .addr     (alu_out       ), //should this not be alu_out_in_pipeline instead of alu_out? 
+   .addr     (alu_out_in_pipeline_2       ), //this is alu_out_in_pipeline_2 because we are still on that clock
    .wen      (mem_write     ),
    .ren      (mem_read      ),
    .wdata    (regfile_data_2),
@@ -367,15 +429,15 @@ sram #(
 );
 
 
-
-mux_2 #(
-   .DATA_W(32)
-) regfile_data_mux (
-   .input_a  (dram_data    ),
-   .input_b  (alu_out      ),
-   .select_a (mem_2_reg     ),
-   .mux_out  (regfile_wdata)
+reg_arstn_en	#(.DATA_W(32))
+instruction_pipe_4 (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (instruction_in_pipeline_4),
+    .en    (enable),
+    .dout  (instruction)
 );
+
 
 reg_arstn_en	#(.DATA_W(32))
 dram_data_reg (
@@ -402,6 +464,33 @@ mem_2_reg_in_reg_3 (
     .din   (mem_2_reg_in_pipeline_3),
     .en    (enable),
     .dout  (mem_2_reg)
+);
+
+reg_arstn_en	#(.DATA_W(1))
+reg_dst_3 (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (reg_dst_in_pipeline_3),
+    .en    (enable),
+    .dout  (reg_dst)// will be used in the first stage
+);
+
+reg_arstn_en	#(.DATA_W(1))
+reg_write_3 (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (reg_write_in_pipeline_3),
+    .en    (enable),
+    .dout  (reg_write)
+);
+
+mux_2 #( //WRITEBACK STAGE
+   .DATA_W(32)
+) regfile_data_mux (
+   .input_a  (dram_data    ),
+   .input_b  (alu_out      ),
+   .select_a (mem_2_reg     ),
+   .mux_out  (regfile_wdata)
 );
 
 
