@@ -594,26 +594,19 @@ mux_2 #(
 ) destination_data_mux (
    .input_a  (instruction_in_pipeline_4[15:11]     ),
    .input_b  (instruction_in_pipeline_4[20:16]     ),
-   .select_a (reg_dst_in_pipeline_3                ),//is instruction in EX/MEM I format?
+   .select_a (reg_dst_in_pipeline_3                ),//is instruction in EX/MEM R format?
    .mux_out  (destination_addr                     )
 );
 
-mux_2 #( 
-   .DATA_W(5)
-) operand_data_mux (
-   .input_a  (instruction_in_pipeline_3[20:16]     ),
-   .input_b  (instruction_in_pipeline_3[25:21]     ),
-   .select_a (reg_dst_in_pipeline_2                ), // is instruction in ID/EX I format?
-   .mux_out  (second_operand)
-);
 
 forwarding_unit forwarding_unit(
 		.ExMemRegwrite   (  reg_write_in_pipeline_3        ),
 		.MemWbregwrite   (                reg_write        ),
 		.ExMemRegisterRd (         destination_addr        ),
 		.IdExRegisterRs  (instruction_in_pipeline_3[25:21] ),
-		.IdExRegisterRt  (           second_operand        ),
+		.IdExRegisterRt  (instruction_in_pipeline_3[20:16] ),
 		.MemWbRegisterRd (              instruction[20:16] ),
+		.reg_dst         (reg_dst_in_pipeline_2            ) ,
 		.memForward      (               memForward        ),
 		.forwardA        (                 forwardA        ),
 		.forwardB        (                 forwardB        )
@@ -633,6 +626,7 @@ module forwarding_unit(
 		input  wire [4:0]    IdExRegisterRs,
 		input  wire [4:0]    IdExRegisterRt,
 		input  wire [4:0]    MemWbRegisterRd,
+		input  wire          reg_dst,
 		output wire          memForward,
 		output wire          forwardA,
 		output wire          forwardB
@@ -643,8 +637,8 @@ module forwarding_unit(
 	assign memForward  = memForwardA   | memForwardB;
 	assign aluForwardA = ExMemRegwrite & (ExMemRegisterRd == IdExRegisterRs);
 	assign aluForwardB = ExMemRegwrite & (ExMemRegisterRd == IdExRegisterRt);
-	assign forwardA    = memForwardA   |  aluForwardA;
-	assign forwardB    = memForwardB   |  aluForwardB;
+	assign forwardA    =  memForwardA   |  aluForwardA;
+	assign forwardB    = (memForwardB  |  aluForwardB) & reg_dst;
 
 endmodule
 module hazard_detection_unit(
