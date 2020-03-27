@@ -592,8 +592,8 @@ mux_2 #( //WRITEBACK STAGE
 mux_2 #( 
    .DATA_W(5)
 ) destination_data_mux (
-   .input_a  (instruction_in_pipeline_4[20:16]     ),
-   .input_b  (instruction_in_pipeline_4[15:11]     ),
+   .input_a  (instruction_in_pipeline_4[15:11]     ),
+   .input_b  (instruction_in_pipeline_4[20:16]     ),
    .select_a (reg_dst_in_pipeline_3                ),//is instruction in EX/MEM I format?
    .mux_out  (destination_addr                     )
 );
@@ -601,8 +601,8 @@ mux_2 #(
 mux_2 #( 
    .DATA_W(5)
 ) operand_data_mux (
-   .input_a  (instruction_in_pipeline_3[25:21]     ),
-   .input_b  (instruction_in_pipeline_3[20:16]     ),
+   .input_a  (instruction_in_pipeline_3[20:16]     ),
+   .input_b  (instruction_in_pipeline_3[25:21]     ),
    .select_a (reg_dst_in_pipeline_2                ), // is instruction in ID/EX I format?
    .mux_out  (second_operand)
 );
