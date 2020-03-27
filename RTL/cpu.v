@@ -60,6 +60,7 @@ wire [31:0] alu_bypassing,alu_operand_1,alu_operand_B;
 
 wire branch_in_mux,mem_read_in_mux,mem_2_reg_in_mux,mem_write_in_mux,reg_write_in_mux;
 wire jump_in_mux;
+wire [4:0] destination_addr,second_operand;
 assign enable_hazard = enable & (~stall); //temporarily disable registers to stall
 
 
@@ -588,12 +589,30 @@ mux_2 #( //WRITEBACK STAGE
    .mux_out  (regfile_wdata)
 );
 
-forwarding_unit forwarding_unit(
+mux_2 #( 
+   .DATA_W(5)
+) destination_data_mux (
+   .input_a  (instruction_in_pipeline_4[20:16]     ),
+   .input_b  (instruction_in_pipeline_4[15:11]     ),
+   .select_a (reg_dst_in_pipeline_3                ),//is instruction in EX/MEM I format?
+   .mux_out  (destination_addr                     )
+);
+
+mux_2 #( 
+   .DATA_W(5)
+) operand_data_mux (
+   .input_a  (instruction_in_pipeline_3[25:21]     ),
+   .input_b  (instruction_in_pipeline_3[20:16]     ),
+   .select_a (reg_dst_in_pipeline_2                ), // is instruction in ID/EX I format?
+   .mux_out  (second_operand)
+);
+
+forwarding_unit forwarding_unit(instruct
 		.ExMemRegwrite   (  reg_write_in_pipeline_3        ),
 		.MemWbregwrite   (                reg_write        ),
-		.ExMemRegisterRd (instruction_in_pipeline_4[15:11] ),
+		.ExMemRegisterRd (         destination_addr        ),
 		.IdExRegisterRs  (instruction_in_pipeline_3[25:21] ),
-		.IdExRegisterRt  (instruction_in_pipeline_3[20:16] ),
+		.IdExRegisterRt  (           second_operand        ),
 		.MemWbRegisterRd (              instruction[20:16] ),
 		.memForward      (              memForward         ),
 		.forwardA        (                 forwardA        ),
