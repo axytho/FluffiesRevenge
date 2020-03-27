@@ -606,7 +606,8 @@ forwarding_unit forwarding_unit(
 		.IdExRegisterRs  (instruction_in_pipeline_3[25:21] ),
 		.IdExRegisterRt  (instruction_in_pipeline_3[20:16] ),
 		.MemWbRegisterRd (              instruction[20:16] ),
-		.reg_dst         (reg_dst_in_pipeline_2            ) ,
+		.reg_dst         (    reg_dst_in_pipeline_2        ),
+		.is_load         (    mem_2_reg_in_pipeline_2      ),
 		.memForward      (               memForward        ),
 		.forwardA        (                 forwardA        ),
 		.forwardB        (                 forwardB        )
@@ -627,6 +628,7 @@ module forwarding_unit(
 		input  wire [4:0]    IdExRegisterRt,
 		input  wire [4:0]    MemWbRegisterRd,
 		input  wire          reg_dst,
+		input  wire          is_load,
 		output wire          memForward,
 		output wire          forwardA,
 		output wire          forwardB
@@ -637,8 +639,8 @@ module forwarding_unit(
 	assign memForward  = memForwardA   | memForwardB;
 	assign aluForwardA = ExMemRegwrite & (ExMemRegisterRd == IdExRegisterRs);
 	assign aluForwardB = ExMemRegwrite & (ExMemRegisterRd == IdExRegisterRt);
-	assign forwardA    =  memForwardA   |  aluForwardA;
-	assign forwardB    = (memForwardB  |  aluForwardB) & reg_dst;
+	assign forwardA    = (memForwardA  |  aluForwardA) & ~(is_load);
+	assign forwardB    = (memForwardB  |  aluForwardB) &   reg_dst ;
 
 endmodule
 module hazard_detection_unit(
