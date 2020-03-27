@@ -607,14 +607,14 @@ mux_2 #(
    .mux_out  (second_operand)
 );
 
-forwarding_unit forwarding_unit(instruct
+forwarding_unit forwarding_unit(
 		.ExMemRegwrite   (  reg_write_in_pipeline_3        ),
 		.MemWbregwrite   (                reg_write        ),
 		.ExMemRegisterRd (         destination_addr        ),
 		.IdExRegisterRs  (instruction_in_pipeline_3[25:21] ),
 		.IdExRegisterRt  (           second_operand        ),
 		.MemWbRegisterRd (              instruction[20:16] ),
-		.memForward      (              memForward         ),
+		.memForward      (               memForward        ),
 		.forwardA        (                 forwardA        ),
 		.forwardB        (                 forwardB        )
    );
