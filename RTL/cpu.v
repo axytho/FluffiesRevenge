@@ -608,7 +608,6 @@ forwarding_unit forwarding_unit(
 		.MemWbRegisterRd (              instruction[20:16] ),
 		.reg_dst         (    reg_dst_in_pipeline_2        ),
 		.is_load_1       (   mem_2_reg_in_pipeline_2       ),
-		.is_load_2       (                 mem_2_reg       ),
 		.memForward      (               memForward        ),
 		.forwardA        (                 forwardA        ),
 		.forwardB        (                 forwardB        )
@@ -630,17 +629,16 @@ module forwarding_unit(
 		input  wire [4:0]    MemWbRegisterRd,
 		input  wire          reg_dst,
 		input  wire          is_load_1,
-		input  wire          is_load_2,
 		output wire          memForward,
 		output wire          forwardA,
 		output wire          forwardB
    );
 	wire aluForwardA,aluForwardB,memForwardB,memForwardA;
-	assign memForwardA = MemWbregwrite & (MemWbRegisterRd == IdExRegisterRs) & is_load_2;
-	assign memForwardB = MemWbregwrite & (MemWbRegisterRd == IdExRegisterRt) & is_load_2;
-	assign memForward  = memForwardA   | memForwardB;
 	assign aluForwardA = ExMemRegwrite & (ExMemRegisterRd == IdExRegisterRs);
 	assign aluForwardB = ExMemRegwrite & (ExMemRegisterRd == IdExRegisterRt);
+	assign memForwardA = MemWbregwrite & (MemWbRegisterRd == IdExRegisterRs) & ~(aluForwardA);
+	assign memForwardB = MemWbregwrite & (MemWbRegisterRd == IdExRegisterRt) & ~(aluForwardB);
+	assign memForward  = memForwardA   | memForwardB;
 	assign forwardA    = (memForwardA  |  aluForwardA) & ~(is_load_1);
 	assign forwardB    = (memForwardB  |  aluForwardB) &   reg_dst ;
 
