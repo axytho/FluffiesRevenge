@@ -431,7 +431,7 @@ alu#(
    .alu_ctrl (alu_control   ),
    .alu_out  (alu_out_in_pipeline       ),
    .shft_amnt(instruction_in_pipeline_3[10:6]),
-   .zero_flag(zero_flag_in_pipeline     ),
+   .zero_flag(zero_flag     ),
    .overflow (              )
 );
 
@@ -441,8 +441,8 @@ branch_unit#(
    .updated_pc   (updated_pc        ),
    .instruction  (instruction_in_pipeline_3       ),
    .branch_offset(immediate_extended),
-   .branch_pc    (branch_pc_in_pipeline         ),
-   .jump_pc      (jump_pc_in_pipeline         )
+   .branch_pc    (branch_pc         ),
+   .jump_pc      (jump_pc         )
 );
 
 reg_arstn_en	#(.DATA_W(32))
@@ -454,24 +454,8 @@ instruction_pipe_3 (
     .dout  (instruction_in_pipeline_4)
 );
 
-reg_arstn_en	#(.DATA_W(32))
-branch_pc_reg (
-    .clk (clk ),
-    .arst_n(arst_n  ),
-    .din   (branch_pc_in_pipeline),
-    .en    (enable),
-    .dout  (branch_pc)
-);
 
 
-reg_arstn_en	#(.DATA_W(32))
-jump_pc_reg (
-    .clk (clk ),
-    .arst_n(arst_n  ),
-    .din   (jump_pc_in_pipeline),
-    .en    (enable),
-    .dout  (jump_pc)
-);
 
 
 reg_arstn_en	#(.DATA_W(32))
@@ -483,14 +467,6 @@ alu_op_reg (
     .dout  (alu_out_in_pipeline_2)
 );
 
-reg_arstn_en	#(.DATA_W(1))
-zero_reg (
-    .clk (clk ),
-    .arst_n(arst_n  ),
-    .din   (zero_flag_in_pipeline),
-    .en    (enable),
-    .dout  (zero_flag)
-);
 
 reg_arstn_en	#(.DATA_W(1))
 mem_2_reg_in_reg_2 (
