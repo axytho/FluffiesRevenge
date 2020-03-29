@@ -55,7 +55,7 @@ wire signed [31:0] immediate_extended_in_pipeline, immediate_extended;
 
 assign immediate_extended_in_pipeline = $signed(instruction_in_pipeline_2[15:0]);
 
-wire memForward,forwardA,forwardB,data_stall,stall, control_stall,enable_pc, enable_fetch;
+wire memForward,forwardA,forwardB,data_stall,stall,control_stall, control_stall_ID,control_stall_EX,enable_pc, enable_fetch;
 wire [31:0] alu_bypassing,alu_operand_1,alu_operand_B;
 
 wire branch_in_mux,mem_read_in_mux,mem_2_reg_in_mux,mem_write_in_mux,reg_write_in_mux;
@@ -63,10 +63,12 @@ wire jump_in_mux;
 wire [4:0] destination_addr,second_operand;
 
 
-assign control_stall = jump_in_pipeline | branch_in_pipeline | branch | jump ;
+assign control_stall_ID = jump_in_pipeline | branch_in_pipeline;
+assign control_stall_EX = branch           | jump ;
+assign control_stall = control_stall_ID | control_stall_EX;
 assign stall = data_stall | control_stall; 
 assign enable_fetch = enable & (~data_stall);
-assign enable_pc = enable & (~stall); //temporarily disable registers to stall
+assign enable_pc = enable & (~control_stall_ID); //temporarily disable registers to stall
 
 
 pc #(
