@@ -33,8 +33,9 @@ module pc#(
    localparam  [DATA_W-1:0] PC_INCREASE= {{(DATA_W-3){1'b0}},3'd4};
   
 
-   wire [DATA_W-1:0] pc_r,next_pc,next_pc_i,next_pc_j,reverted_pc;
+   wire [DATA_W-1:0] pc_r,next_pc,next_pc_i,next_pc_j;
    reg               pc_src;
+   reg [DATA_W-1:0] reverted_pc;
       
 
    always@(*) pc_src = zero_flag & branch; 
