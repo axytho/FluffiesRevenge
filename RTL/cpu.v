@@ -81,7 +81,7 @@ pc #(
    .zero_flag (zero_flag             ),
    .branch    (branch                ),
    .jump      (jump                  ),
-   .revert    (control_stall_ID      )
+   .revert    (control_stall_ID      ),
    .current_pc(current_pc            ),
    .enable    (enable_pc             ), //don't update if stall 
    .updated_pc(updated_pc_in_pipeline)
