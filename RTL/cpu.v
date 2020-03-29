@@ -48,22 +48,25 @@ wire              reg_dst, reg_dst_in_pipeline, reg_dst_in_pipeline_2, reg_dst_i
 wire [       4:0] regfile_waddr;
 wire [      31:0] regfile_wdata, dram_data, dram_data_in_pipeline,alu_out, alu_out_in_pipeline, alu_out_in_pipeline_2,
                   regfile_data_1,regfile_data_2,
-                  alu_operand_2;
+                  alu_operand_2,,instruction_in_mux;
  
 
 wire signed [31:0] immediate_extended_in_pipeline, immediate_extended;
 
 assign immediate_extended_in_pipeline = $signed(instruction_in_pipeline_2[15:0]);
 
-wire memForward,forwardA,forwardB,data_stall,stall, enable_hazard;
+wire memForward,forwardA,forwardB,data_stall,stall, control_stall,enable_pc, enable_fetch;
 wire [31:0] alu_bypassing,alu_operand_1,alu_operand_B;
 
 wire branch_in_mux,mem_read_in_mux,mem_2_reg_in_mux,mem_write_in_mux,reg_write_in_mux;
 wire jump_in_mux;
 wire [4:0] destination_addr,second_operand;
 
-assign stall = data_stall; 
-assign enable_hazard = enable & (~stall); //temporarily disable registers to stall
+
+assign control_stall = jump_in_pipeline | branch_in_pipeline | branch | jump ;
+assign stall = data_stall | control_stall; 
+assign enable_fetch = enable & (~data_stall);
+assign enable_pc = enable & (~stall); //temporarily disable registers to stall
 
 
 pc #(
@@ -77,7 +80,7 @@ pc #(
    .branch    (branch                ),
    .jump      (jump                  ),
    .current_pc(current_pc            ),
-   .enable    (enable_hazard         ), //don't update if stall 
+   .enable    (enable_pc             ), //don't update if stall 
    .updated_pc(updated_pc_in_pipeline)
 );
 
@@ -91,12 +94,22 @@ sram #(
    .wen      (1'b0          ),
    .ren      (1'b1          ),
    .wdata    (32'b0         ),
-   .rdata    (instruction_in_pipeline   ),   
+   .rdata    (instruction_in_mux   ),   
    .addr_ext (addr_ext      ),
    .wen_ext  (wen_ext       ), 
    .ren_ext  (ren_ext       ),
    .wdata_ext(wdata_ext     ),
    .rdata_ext(rdata_ext     )
+);
+
+
+mux_2 #(
+   .DATA_W(32)
+) instruction_control_stall_mux (
+   .input_a (32'b0                  ), 
+   .input_b (instruction_in_mux     ),
+   .select_a(control_stall          ),
+   .mux_out (instruction_in_pipeline)
 );
 
 
@@ -106,7 +119,7 @@ instruction_pipe (
     .clk (clk ),
     .arst_n(arst_n  ),
     .din   (instruction_in_pipeline),
-    .en    (enable_hazard),
+    .en    (enable_fetch),
     .dout  (instruction_in_pipeline_2)
 );
 
@@ -115,7 +128,7 @@ updated_pc_pc_plus_4 (
     .clk (clk ),
     .arst_n(arst_n  ),
     .din   (updated_pc_in_pipeline),
-    .en    (enable_hazard),
+    .en    (enable_fetch),
     .dout  (updated_pc_in_pipeline_2)
 );
 
@@ -136,21 +149,24 @@ control_unit control_unit(
    .jump     (jump_in_mux                   )
 );
 
+
 mux_2 #(
    .DATA_W(1)
 ) branch_stall_mux (
    .input_a (1'b0               ), 
    .input_b (branch_in_mux      ),
-   .select_a(stall              ),
+   .select_a(data_stall         ),
    .mux_out (branch_in_pipeline )
 );
+
+
 
 mux_2 #(
    .DATA_W(1)
 ) mem_read_stall_mux (
    .input_a (1'b0                ), 
    .input_b (mem_read_in_mux     ),
-   .select_a(stall               ),
+   .select_a(data_stall               ),
    .mux_out (mem_read_in_pipeline)
 );
 
@@ -159,7 +175,7 @@ mux_2 #(
 ) mem_2_reg_stall_mux (
    .input_a (1'b0                  ), 
    .input_b (mem_2_reg_in_mux      ),
-   .select_a(stall                 ),
+   .select_a(data_stall                 ),
    .mux_out (mem_2_reg_in_pipeline )
 );
 
@@ -168,7 +184,7 @@ mux_2 #(
 ) mem_write_stall_mux (
    .input_a (1'b0                  ), 
    .input_b (mem_write_in_mux      ),
-   .select_a(stall                 ),
+   .select_a(data_stall                 ),
    .mux_out (mem_write_in_pipeline )
 );
 
@@ -178,7 +194,7 @@ mux_2 #(
 ) reg_write_stall_mux (
    .input_a (1'b0                  ), 
    .input_b (reg_write_in_mux      ),
-   .select_a(stall                 ),
+   .select_a(data_stall            ),
    .mux_out (reg_write_in_pipeline )
 );
 
@@ -187,9 +203,11 @@ mux_2 #(
 ) jump_stall_mux (
    .input_a (1'b0                  ), 
    .input_b (jump_in_mux           ),
-   .select_a(stall                 ),
+   .select_a(data_stall            ),
    .mux_out (jump_in_pipeline      )
 );
+
+
 
 alu_control alu_ctrl(
    .function_field (instruction_in_pipeline_2[5:0]),
