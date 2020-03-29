@@ -55,12 +55,14 @@ wire signed [31:0] immediate_extended_in_pipeline, immediate_extended;
 
 assign immediate_extended_in_pipeline = $signed(instruction_in_pipeline_2[15:0]);
 
-wire memForward,forwardA,forwardB,stall, enable_hazard;
+wire memForward,forwardA,forwardB,data_stall,stall, enable_hazard;
 wire [31:0] alu_bypassing,alu_operand_1,alu_operand_B;
 
 wire branch_in_mux,mem_read_in_mux,mem_2_reg_in_mux,mem_write_in_mux,reg_write_in_mux;
 wire jump_in_mux;
 wire [4:0] destination_addr,second_operand;
+
+assign stall = data_stall; 
 assign enable_hazard = enable & (~stall); //temporarily disable registers to stall
 
 
@@ -612,12 +614,12 @@ forwarding_unit forwarding_unit(
 		.forwardA        (                 forwardA        ),
 		.forwardB        (                 forwardB        )
    );
-hazard_detection_unit hazard_detection_unit(
+data_hazard_detection_unit data_hazard_detection_unit(
 		.IdExMemread     (  mem_2_reg_in_pipeline_2        ),
 		.IdExRegisterRt  (instruction_in_pipeline_3[20:16] ),
 		.IfIdRegisterRt  (instruction_in_pipeline_2[20:16] ),
 		.IfIdRegisterRs  (instruction_in_pipeline_2[25:21] ),
-		.stall           (                    stall        )
+		.stall           (            	 data_stall        )
    );
 endmodule
 module forwarding_unit(
@@ -643,7 +645,7 @@ module forwarding_unit(
 	assign forwardB    = (memForwardB  |  aluForwardB) &   reg_dst ;
 
 endmodule
-module hazard_detection_unit(
+module data_hazard_detection_unit(
 		input  wire 		 IdExMemread,
 		input  wire [4:0]    IdExRegisterRt,
 		input  wire [4:0]    IfIdRegisterRt,
