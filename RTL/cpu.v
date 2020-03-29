@@ -48,7 +48,7 @@ wire              reg_dst, reg_dst_in_pipeline, reg_dst_in_pipeline_2, reg_dst_i
 wire [       4:0] regfile_waddr;
 wire [      31:0] regfile_wdata, dram_data, dram_data_in_pipeline,alu_out, alu_out_in_pipeline, alu_out_in_pipeline_2,
                   regfile_data_1,regfile_data_2,
-                  alu_operand_2,,instruction_in_mux;
+                  alu_operand_2,instruction_in_mux;
  
 
 wire signed [31:0] immediate_extended_in_pipeline, immediate_extended;
