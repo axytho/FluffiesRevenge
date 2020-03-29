@@ -25,6 +25,7 @@ module pc#(
       input  wire              zero_flag,
       input  wire              branch,
       input  wire              jump,
+	  input  wire              revert,
       output reg  [DATA_W-1:0] updated_pc,
       output reg  [DATA_W-1:0] current_pc
    );
@@ -32,7 +33,7 @@ module pc#(
    localparam  [DATA_W-1:0] PC_INCREASE= {{(DATA_W-3){1'b0}},3'd4};
   
 
-   wire [DATA_W-1:0] pc_r,next_pc,next_pc_i;
+   wire [DATA_W-1:0] pc_r,next_pc,next_pc_i,next_pc_j,reverted_pc;
    reg               pc_src;
       
 
@@ -53,9 +54,16 @@ module pc#(
       .input_a (jump_pc   ),
       .input_b (next_pc_i ),
       .select_a(jump      ),
-      .mux_out (next_pc   )
+      .mux_out (next_pc_j )
    );
-   
+    mux_2#(
+      .DATA_W(DATA_W)
+   ) mux_jump( 
+      .input_a (reverted_pc   ),
+      .input_b (next_pc_j     ),
+      .select_a(revert        ),
+      .mux_out (next_pc       )
+   );  
 
 
    reg_arstn_en#(
@@ -70,8 +78,8 @@ module pc#(
    );
 
    
-   always@(*) updated_pc = current_pc+PC_INCREASE;
-
+   always@(*) updated_pc  = current_pc+PC_INCREASE;
+   always@(*) reverted_pc = current_pc-PC_INCREASE;
 
    
 

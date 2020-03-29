@@ -68,7 +68,7 @@ assign control_stall_EX = branch           | jump ;
 assign control_stall = control_stall_ID | control_stall_EX;
 assign stall = data_stall | control_stall; 
 assign enable_fetch = enable & (~data_stall);
-assign enable_pc = enable & (~control_stall_ID); //temporarily disable registers to stall
+assign enable_pc = enable & (~data_stall); //temporarily disable registers to stall
 
 
 pc #(
@@ -81,6 +81,7 @@ pc #(
    .zero_flag (zero_flag             ),
    .branch    (branch                ),
    .jump      (jump                  ),
+   .revert    (control_stall_ID      )
    .current_pc(current_pc            ),
    .enable    (enable_pc             ), //don't update if stall 
    .updated_pc(updated_pc_in_pipeline)
