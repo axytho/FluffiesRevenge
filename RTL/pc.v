@@ -58,7 +58,7 @@ module pc#(
    );
     mux_2#(
       .DATA_W(DATA_W)
-   ) mux_jump( 
+   ) mux_revert( 
       .input_a (reverted_pc   ),
       .input_b (next_pc_j     ),
       .select_a(revert        ),
