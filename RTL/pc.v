@@ -38,7 +38,7 @@ module pc#(
    //reg [DATA_W-1:0] reverted_pc;
       
 
-   always@(*) pc_src = zero_flag & branch; 
+ //  always@(*) pc_src = zero_flag & branch; 
       
 /*    mux_2#(
       .DATA_W(DATA_W)
