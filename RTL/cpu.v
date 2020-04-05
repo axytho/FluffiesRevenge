@@ -62,6 +62,8 @@ wire branch_in_mux,mem_read_in_mux,mem_2_reg_in_mux,mem_write_in_mux,reg_write_i
 wire jump_in_mux;
 wire [4:0] destination_addr,second_operand;
 
+wire we_buffer,post_jump,hit_buffer,pre_jump;
+wire [31:0] current_pc_IFID, current_pc_IDEX,next_pc, target;
 
 assign control_stall_ID = jump_in_pipeline | branch_in_pipeline;
 assign control_stall_EX = branch           | jump ;
@@ -76,17 +78,31 @@ pc #(
 ) program_counter (
    .clk       (clk                   ),
    .arst_n    (arst_n                ),
-   .branch_pc (branch_pc             ),
+//   .branch_pc (branch_pc             ),
    .jump_pc   (jump_pc               ),
-   .zero_flag (zero_flag             ),
-   .branch    (branch                ),
+ //  .zero_flag (zero_flag             ),
+ //  .branch    (branch                ),
    .jump      (jump                  ),
-   .revert    (control_stall_ID      ),
+ //  .revert    (control_stall_ID      ),
    .current_pc(current_pc            ),
    .enable    (enable_pc             ), //don't update if stall 
    .updated_pc(updated_pc_in_pipeline)
 );
 
+
+branch_information_buffer buffer(
+   .clk(clk),
+   .nrst(arst_n),
+   .re(1'b1), 
+   .we(we_buffer), 
+   .r_addr(current_pc),   
+   .w_addr(current_pc_IDEX),
+   .n_tar(target),
+   .n_pre(post_jump),
+   .o_tar(next_pc),
+   .hit(hit_buffer),
+   .pre(pre_jump)
+);
 
 sram #(
    .ADDR_W(9 ),
