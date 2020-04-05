@@ -4378,7 +4378,7 @@ module  branch_information_buffer(
 genvar index;
 generate
    for (index = 0; index <37 ; index = index + 1) begin : memory_blocks
-     SRAM2RW16x37_1bit bit_mem(clk, rstn, re, we, index_r, index_w, I[index],O[index]);
+     SRAM2RW16x37_1bit bit_mem(clk, nrst, re, we, index_r, index_w, I[index],O[index]);
    end 
 endgenerate
 endmodule
@@ -4399,11 +4399,13 @@ always@(posedge clk, negedge rstn) begin
 	if (rstn ==0) begin
 		memory <= 16'b0; //start up: nothing stored yet
 		end 
-	else if (we) begin
-		memory[w_addr] <= I;
-		end
-	else if (re) begin
-		O <= memory[r_addr]; 
-		end
+	else begin
+		if (we) begin
+			memory[w_addr] <= I;
+			end
+	    if (re) begin
+			O <= memory[r_addr]; 
+			end
+		end 
 	end 
 endmodule
