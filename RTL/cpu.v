@@ -42,8 +42,8 @@ wire [      31:0] branch_pc,updated_pc,current_pc,jump_pc,
                   branch_pc_in_pipeline, jump_pc_in_pipeline;
 wire [       1:0] alu_op;
 wire [       3:0] alu_control, alu_control_in_pipeline;
-wire              reg_dst, reg_dst_in_pipeline, reg_dst_in_pipeline_2, reg_dst_in_pipeline_3,  branch,mem_read,mem_2_reg, reg_write, reg_write_in_pipeline, reg_write_in_pipeline_2, reg_write_in_pipeline_3, 
-                  mem_write,alu_src,  jump, branch_in_pipeline, mem_read_in_pipeline, mem_2_reg_in_pipeline, mem_write_in_pipeline,alu_src_in_pipeline,   jump_in_pipeline,
+wire              reg_dst, reg_dst_in_pipeline, reg_dst_in_pipeline_2, reg_dst_in_pipeline_3, branch, post_branch,mem_read,mem_2_reg, reg_write, reg_write_in_pipeline, reg_write_in_pipeline_2, reg_write_in_pipeline_3, 
+                  mem_write,alu_src,  jump, post_jump, mem_read_in_pipeline, mem_2_reg_in_pipeline, mem_write_in_pipeline,alu_src_in_pipeline,   jump_in_pipeline,
                   mem_write_in_pipeline_2, mem_2_reg_in_pipeline_2, mem_2_reg_in_pipeline_3;
 wire [       4:0] regfile_waddr;
 wire [      31:0] regfile_wdata, dram_data, dram_data_in_pipeline,alu_out, alu_out_in_pipeline, alu_out_in_pipeline_2,
@@ -53,26 +53,31 @@ wire [      31:0] regfile_wdata, dram_data, dram_data_in_pipeline,alu_out, alu_o
 
 wire signed [31:0] immediate_extended_in_pipeline, immediate_extended;
 
-assign immediate_extended_in_pipeline = $signed(instruction_in_pipeline_2[15:0]);
 
-wire memForward,forwardA,forwardB,data_stall,stall,control_stall, control_stall_ID,control_stall_EX,enable_pc, enable_fetch;
+
+wire memForward,forwardA,forwardB,data_stall,stall,enable_pc, enable_fetch;
 wire [31:0] alu_bypassing,alu_operand_1,alu_operand_B;
 
 wire branch_in_mux,mem_read_in_mux,mem_2_reg_in_mux,mem_write_in_mux,reg_write_in_mux;
 wire jump_in_mux;
 wire [4:0] destination_addr,second_operand;
 
-wire we_buffer,post_jump,hit_buffer,pre_jump;
-wire [31:0] current_pc_IFID, current_pc_IDEX,next_pc, target;
+wire we_buffer,post_jump,hit_buffer,pre_jump,pred_jump;
+wire flush;
+wire [31:0] current_pc_IFID, current_pc_IDEX,next_pc, n_tar, n_pre, post_pc,pre_pc;
+wire pre_jump_IFID,pre_pc_IFID; 
+wire rsrtEqual; 
+wire correct_pc, correct_flow_change, post_flow_change, correct_flow,correct_flow_IDEX,post_flow_change_IDEX;
+wire [31:0] recovery_pc,recovery_pc_IDEX; 
 
-assign control_stall_ID = jump_in_pipeline | branch_in_pipeline;
+/* assign control_stall_ID = jump_in_pipeline | branch_in_pipeline;
 assign control_stall_EX = branch           | jump ;
-assign control_stall = control_stall_ID | control_stall_EX;
-assign stall = data_stall | control_stall; 
+assign control_stall = control_stall_ID | control_stall_EX; */
+assign stall = data_stall; //| control_stall; 
 assign enable_fetch = enable & (~data_stall);
 assign enable_pc = enable & (~data_stall); //temporarily disable registers to stall
 
-
+// instruction fetch stage 
 pc #(
    .DATA_W(32)
 ) program_counter (
@@ -94,15 +99,46 @@ branch_information_buffer buffer(
    .clk(clk),
    .nrst(arst_n),
    .re(1'b1), 
-   .we(we_buffer), 
+   .we(~correct_flow_IDEX), 
    .r_addr(current_pc),   
    .w_addr(current_pc_IDEX),
-   .n_tar(target),
-   .n_pre(post_jump),
-   .o_tar(next_pc),
+   .n_tar(recovery_pc_IDEX),
+   .n_pre(post_flow_change_IDEX),
+   .o_tar(pre_pc),
    .hit(hit_buffer),
-   .pre(pre_jump)
+   .pre(pred_jump)
 );
+
+assign pre_jump = pred_jump & hit_buffer; 
+assign jump = pre_jump | (~correct_flow); //predict jump or recovering from mistake  
+reg_arstn_en	#(.DATA_W(1))
+branch_taken_regIFID (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (pre_jump),
+    .en    (enable_fetch),
+    .dout  (pre_jump_IFID)
+);
+
+
+mux_2 #(
+   .DATA_W(32)
+) jump_pc_mux (
+   .input_a (pre_pc             ), 
+   .input_b (recovery_pc        ),
+   .select_a(correct_flow       ),
+   .mux_out (jump_pc)
+);
+
+reg_arstn_en	#(.DATA_W(32))
+target_taken_regIFID (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (pre_pc),
+    .en    (enable_fetch),
+    .dout  (pre_pc_IFID)
+);
+
 
 sram #(
    .ADDR_W(9 ),
@@ -122,12 +158,22 @@ sram #(
 );
 
 
+
+reg_arstn_en	#(.DATA_W(32))
+current_pc_pipe (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (current_pc),
+    .en    (enable_fetch),
+    .dout  (current_pc_IFID)
+);
+
 mux_2 #(
    .DATA_W(32)
 ) instruction_control_stall_mux (
    .input_a (32'b0                  ), 
    .input_b (instruction_in_mux     ),
-   .select_a(control_stall          ),
+   .select_a(flush                  ),
    .mux_out (instruction_in_pipeline)
 );
 
@@ -148,12 +194,12 @@ updated_pc_pc_plus_4 (
     .arst_n(arst_n  ),
     .din   (updated_pc_in_pipeline),
     .en    (enable_fetch),
-    .dout  (updated_pc_in_pipeline_2)
+    .dout  (updated_pc)
 );
 
 
 
-
+// instruction decode stage 
 
 control_unit control_unit(
    .opcode   (instruction_in_pipeline_2[31:26]),
@@ -175,7 +221,7 @@ mux_2 #(
    .input_a (1'b0               ), 
    .input_b (branch_in_mux      ),
    .select_a(data_stall         ),
-   .mux_out (branch_in_pipeline )
+   .mux_out (branch )
 );
 
 
@@ -223,7 +269,7 @@ mux_2 #(
    .input_a (1'b0                  ), 
    .input_b (jump_in_mux           ),
    .select_a(data_stall            ),
-   .mux_out (jump_in_pipeline      )
+   .mux_out (post_jump                  )
 );
 
 
@@ -262,6 +308,71 @@ register_file #(
    .rdata_2  (regfile_data_2_in_pipeline    )
 );
 
+
+assign rsrtEqual = (regfile_data_1_in_pipeline==regfile_data_2_in_pipeline); 
+assign immediate_extended_in_pipeline = $signed(instruction_in_pipeline_2[15:0]);
+assign post_branch = (branch & rsrtEqual); 
+branch_unit#(
+   .DATA_W(32)
+)branch_unit(
+   .updated_pc   (updated_pc        ),
+   .instruction  (instruction_in_pipeline_2      ),
+   .branch_offset(immediate_extended_in_pipeline),
+   .branch_pc    (branch_pc         ),
+   .jump_pc      (jump_pc         )
+);
+
+mux_2 #(
+   .DATA_W(32)
+) next_target_mux (
+   .input_a (jump_pc), //instruction being the instruction loaded 5 cycles ago.
+   .input_b (branch_pc),
+   .select_a(post_jump        ),
+   .mux_out (post_pc )
+);
+
+assign correct_pc = (post_pc == pre_pc_IFID); 
+assign post_flow_change = (post_branch | post_jump); 
+assign correct_flow_change = (post_flow_change == pre_jump);
+assign correct_flow        = ((post_flow_change & correct_flow_change & correct_pc) | ((~post_flow_change)&correct_flow_change))  //target and target taken correct 
+assign recovery_pc = (post_flow_change)? post_pc : updated_pc ; 
+
+reg_arstn_en	#(.DATA_W(1))
+correct_flow_reg (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (correct_flow),
+    .en    (enable),
+    .dout  (correct_flow_IDEX)
+);
+
+reg_arstn_en	#(.DATA_W(1))
+post_flow_change_reg (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (post_flow_change),
+    .en    (enable),
+    .dout  (post_flow_change_IDEX)
+);
+
+reg_arstn_en	#(.DATA_W(32))
+recovery_pc_reg (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (recovery_pc),
+    .en    (enable),
+    .dout  (recovery_pc_IDEX)
+);
+
+reg_arstn_en	#(.DATA_W(32))
+current_pc_reg (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (current_pc_IFID),
+    .en    (enable),
+    .dout  (current_pc_IDEX)
+);
+
 reg_arstn_en	#(.DATA_W(32))
 read_data_1_reg (
     .clk (clk ),
@@ -290,15 +401,6 @@ immediate_extend_reg (
     .dout  (immediate_extended)
 );
 
-
-reg_arstn_en	#(.DATA_W(1))
-branch_in_reg (
-    .clk (clk ),
-    .arst_n(arst_n  ),
-    .din   (branch_in_pipeline),
-    .en    (enable),
-    .dout  (branch)
-);
 
 reg_arstn_en	#(.DATA_W(1))
 mem_read_in_reg (
@@ -338,14 +440,6 @@ alu_src_in_reg (
 
 
 
-reg_arstn_en	#(.DATA_W(1))
-jump_reg (
-    .clk (clk ),
-    .arst_n(arst_n  ),
-    .din   (jump_in_pipeline),
-    .en    (enable),
-    .dout  (jump)
-);
 
 reg_arstn_en	#(.DATA_W(1))
 reg_dst_1 (
@@ -374,14 +468,6 @@ alu_control_reg (
     .dout  (alu_control)
 );
 
-reg_arstn_en	#(.DATA_W(32))
-updated_pc_pc_plus_4_2 (
-    .clk (clk ),
-    .arst_n(arst_n  ),
-    .din   (updated_pc_in_pipeline_2),
-    .en    (enable),
-    .dout  (updated_pc)
-);
 
 reg_arstn_en	#(.DATA_W(32))
 instruction_pipe_2 (
@@ -395,7 +481,7 @@ instruction_pipe_2 (
 
 
 
-
+//execution stage 
 
 mux_2 #(
    .DATA_W(32)
@@ -452,15 +538,7 @@ alu#(
    .overflow (              )
 );
 
-branch_unit#(
-   .DATA_W(32)
-)branch_unit(
-   .updated_pc   (updated_pc        ),
-   .instruction  (instruction_in_pipeline_3       ),
-   .branch_offset(immediate_extended),
-   .branch_pc    (branch_pc         ),
-   .jump_pc      (jump_pc         )
-);
+
 
 reg_arstn_en	#(.DATA_W(32))
 instruction_pipe_3 (
