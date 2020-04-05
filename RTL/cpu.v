@@ -67,7 +67,7 @@ wire flush;
 wire [31:0] current_pc_IFID, current_pc_IDEX,next_pc, n_tar, n_pre, post_pc,pre_pc;
 wire pre_jump_IFID,pre_pc_IFID; 
 wire rsrtEqual; 
-wire correct_pc, correct_flow_change, post_flow_change, correct_flow,correct_flow_IDEX,post_flow_change_IDEX;
+wire correct_pc, correct_flow_change, post_flow_change, correct_flow,correct_flow_IDEX,post_flow_change_IDEX,correct_flow_in_mux;
 wire [31:0] recovery_pc,recovery_pc_IDEX; 
 
 /* assign control_stall_ID = jump_in_pipeline | branch_in_pipeline;
@@ -173,7 +173,7 @@ mux_2 #(
 ) instruction_control_stall_mux (
    .input_a (32'b0                  ), 
    .input_b (instruction_in_mux     ),
-   .select_a(flush                  ),
+   .select_a(~correct_flow                  ),
    .mux_out (instruction_in_pipeline)
 );
 
@@ -334,9 +334,18 @@ mux_2 #(
 assign correct_pc = (post_pc == pre_pc_IFID); 
 assign post_flow_change = (post_branch | post_jump); 
 assign correct_flow_change = (post_flow_change == pre_jump);
-assign correct_flow        = ((post_flow_change & correct_flow_change & correct_pc) | ((~post_flow_change)&correct_flow_change))  //target and target taken correct 
+assign correct_flow_in_mux        = ((post_flow_change & correct_flow_change & correct_pc) | ((~post_flow_change)&correct_flow_change))  //target and target taken correct 
 assign recovery_pc = (post_flow_change)? post_pc : updated_pc ; 
 
+
+mux_2 #(
+   .DATA_W(1)
+) correct_flow_stall_mux (
+   .input_a (1'b1              ), 
+   .input_b (correct_flow_in_mux      ),
+   .select_a(data_stall         ),
+   .mux_out (correct_flow )
+);
 reg_arstn_en	#(.DATA_W(1))
 correct_flow_reg (
     .clk (clk ),
