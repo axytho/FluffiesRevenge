@@ -4341,3 +4341,69 @@ always @ (data_out2 or OEB2_i)
 		O2_i = 1'bz;
 
 endmodule
+
+
+
+module  branch_information_buffer(
+   input  wire 			clk,
+   input  wire         nrst,
+   input  wire 			 re, 
+   input  wire 			 we, 
+   input  wire [8:0]  r_addr,  
+   input  wire [8:0]  w_addr,
+   input  wire [31:0]  n_tar,
+   input  wire         n_pre,
+   output wire [31:0]  o_tar,
+   output wire           hit,
+   output wire           pre
+ );
+ 
+ wire [2:0]   key_r;
+ wire [3:0] index_r;
+ wire [2:0]   key_w;
+ wire [3:0] index_w;
+ assign key_r   = r_addr[8:6];
+ assign index_r =  r_addr[5:2];
+ assign key_w   = w_addr[8:6];
+ assign index_w = w_addr[5:2];
+ 
+ wire [36:0] O;
+ wire [36:0] I;
+ 
+ assign hit    = O[36] & (O[34:32] == key_r);
+ assign o_tar  = O[31:0];
+ assign pre    = O[35]; 
+ 
+ assign I   = {1'b1,n_pre,key_w,n_tar}; 
+genvar index;
+generate
+   for (index = 0; index <37 ; index = index + 1) begin : memory_blocks
+     SRAM2RW16x37_1bit(clk, rstn, re, we, index_r, index_w, I[index],O[index]);
+   end 
+endgenerate
+endmodule
+
+module SRAM2RW16x37_1bit bit_mem(
+			input wire          clk,
+			input wire         rstn,
+			input wire           re,
+			input wire           we, 
+			input wire [3:0] r_addr,
+			input wire [3:0] w_addr, 
+			input wire            I,
+			output reg            O
+);
+
+reg [15:0] memory; 
+always@(posedge clk, negedge rstn)begin
+	if (rstn ==0) begin
+		memory <= 16'b0; //start up: nothing stored yet
+		end 
+	else if (we) begin
+		memory[w_addr] <= I;
+		end
+	else if (re) begin
+		O <= memory[r_addr]; 
+		end
+	end 
+endmodule
