@@ -334,7 +334,7 @@ mux_2 #(
 assign correct_pc = (post_pc == pre_pc_IFID); 
 assign post_flow_change = (post_branch | post_jump); 
 assign correct_flow_change = (post_flow_change == pre_jump);
-assign correct_flow_in_mux        = ((post_flow_change & correct_flow_change & correct_pc) | ((~post_flow_change)&correct_flow_change))  //target and target taken correct 
+assign correct_flow_in_mux        = ((post_flow_change & correct_flow_change & correct_pc) | ((~post_flow_change)&correct_flow_change));  //target and target taken correct 
 assign recovery_pc = (post_flow_change==1)? post_pc : updated_pc ; 
 
 
