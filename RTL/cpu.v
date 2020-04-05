@@ -67,7 +67,7 @@ wire flush;
 wire [31:0] current_pc_IFID, current_pc_IDEX,next_pc, n_tar, n_pre, post_pc,pre_pc;
 wire pre_jump_IFID,pre_pc_IFID; 
 wire rsrtEqual; 
-wire correct_pc, correct_flow_change, post_flow_change, correct_flow,correct_flow_IDEX,post_flow_change_IDEX,correct_flow_in_mux;
+wire correct_pc, correct_flow_change, post_flow_change, correct_flow,incorrect_flow_IDEX,post_flow_change_IDEX,correct_flow_in_mux;
 wire [31:0] recovery_pc,recovery_pc_IDEX; 
 
 /* assign control_stall_ID = jump_in_pipeline | branch_in_pipeline;
@@ -99,7 +99,7 @@ branch_information_buffer buffer(
    .clk(clk),
    .nrst(arst_n),
    .re(1'b1), 
-   .we(~correct_flow_IDEX), 
+   .we(incorrect_flow_IDEX), 
    .r_addr(current_pc),   
    .w_addr(current_pc_IDEX),
    .n_tar(recovery_pc_IDEX),
@@ -350,9 +350,9 @@ reg_arstn_en	#(.DATA_W(1))
 correct_flow_reg (
     .clk (clk ),
     .arst_n(arst_n  ),
-    .din   (correct_flow),
+    .din   (~correct_flow),
     .en    (enable),
-    .dout  (correct_flow_IDEX)
+    .dout  (incorrect_flow_IDEX)
 );
 
 reg_arstn_en	#(.DATA_W(1))
