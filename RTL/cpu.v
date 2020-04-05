@@ -43,7 +43,7 @@ wire [      31:0] branch_pc,updated_pc,current_pc,jump_pc,
 wire [       1:0] alu_op;
 wire [       3:0] alu_control, alu_control_in_pipeline;
 wire              reg_dst, reg_dst_in_pipeline, reg_dst_in_pipeline_2, reg_dst_in_pipeline_3, branch, post_branch,mem_read,mem_2_reg, reg_write, reg_write_in_pipeline, reg_write_in_pipeline_2, reg_write_in_pipeline_3, 
-                  mem_write,alu_src,  jump, post_jump, mem_read_in_pipeline, mem_2_reg_in_pipeline, mem_write_in_pipeline,alu_src_in_pipeline,   jump_in_pipeline,
+                  mem_write,alu_src,  jump, mem_read_in_pipeline, mem_2_reg_in_pipeline, mem_write_in_pipeline,alu_src_in_pipeline,   jump_in_pipeline,
                   mem_write_in_pipeline_2, mem_2_reg_in_pipeline_2, mem_2_reg_in_pipeline_3;
 wire [       4:0] regfile_waddr;
 wire [      31:0] regfile_wdata, dram_data, dram_data_in_pipeline,alu_out, alu_out_in_pipeline, alu_out_in_pipeline_2,
