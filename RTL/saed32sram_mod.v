@@ -4362,14 +4362,20 @@ module  branch_information_buffer(
  wire [3:0] index_r;
  wire [2:0]   key_w;
  wire [3:0] index_w;
- assign key_r   = r_addr[8:6];
  assign index_r =  r_addr[5:2];
  assign key_w   = w_addr[8:6];
  assign index_w = w_addr[5:2];
  
  wire [36:0] O;
  wire [36:0] I;
- 
+ reg_arstn_en	#(.DATA_W(1))
+key_r_reg (
+    .clk (clk ),
+    .arst_n(nrst  ),
+    .din   (r_addr[8:6]),
+    .en    (enable_fetch),
+    .dout  (key_r)
+);
  assign hit    = O[36] & (O[34:32] == key_r);
  assign o_tar  = O[31:0];
  assign pre    = O[35]; 
