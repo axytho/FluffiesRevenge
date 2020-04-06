@@ -65,7 +65,8 @@ wire [4:0] destination_addr,second_operand;
 wire we_buffer,post_jump,hit_buffer,pre_jump,pred_jump, pre_jump_out_mux;
 wire flush;
 wire [31:0] current_pc_IFID, current_pc_IDEX,next_pc, n_tar, n_pre, post_pc,pre_pc,current_pc_out_mux,pre_pc_out_mux;
-wire pre_jump_IFID,pre_pc_IFID; 
+wire pre_jump_IFID
+wire [31:0] pre_pc_IFID; 
 wire rsrtEqual; 
 wire correct_pc, correct_flow_change, post_flow_change, correct_flow,post_flow_change_IDEX,correct_flow_in_mux;
 wire [31:0] recovery_pc,recovery_pc_IDEX, updated_pc_to_pipeline; 
@@ -97,12 +98,21 @@ pc #(
 );
 
 
+mux_2 #(
+   .DATA_W(32)
+) next_pc_mux (
+   .input_a (jump_pc                 ), 
+   .input_b (updated_pc_in_pipeline     ),
+   .select_a(jump                  ),
+   .mux_out (next_pc)
+);
+
 branch_information_buffer buffer(
    .clk(clk),
    .nrst(arst_n),
    .re(1'b1), 
    .we(we_buffer_IDEX), 
-   .r_addr(current_pc),   
+   .r_addr(next_pc),   
    .w_addr(current_pc_IDEX),
    .n_tar(recovery_pc_IDEX),
    .n_pre(post_flow_change_IDEX),
