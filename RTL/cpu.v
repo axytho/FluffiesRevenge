@@ -65,7 +65,7 @@ wire [4:0] destination_addr,second_operand;
 wire we_buffer,post_jump,hit_buffer,pre_jump,pred_jump, pre_jump_out_mux;
 wire flush;
 wire [31:0] current_pc_IFID, current_pc_IDEX,next_pc, n_tar, n_pre, post_pc,pre_pc,current_pc_out_mux,pre_pc_out_mux;
-wire pre_jump_IFID
+wire pre_jump_IFID;
 wire [31:0] pre_pc_IFID; 
 wire rsrtEqual; 
 wire correct_pc, correct_flow_change, post_flow_change, correct_flow,post_flow_change_IDEX,correct_flow_in_mux;
