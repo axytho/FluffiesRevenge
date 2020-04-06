@@ -37,7 +37,7 @@ module cpu(
    );
 
 wire              zero_flag, zero_flag_in_pipeline;
-wire [      31:0] branch_pc,updated_pc,current_pc,jump_pc,
+wire [      31:0] branch_pc,updated_pc,current_pc,jump_pc,post_jump_pc,post_branch_pc
                   instruction, instruction_in_pipeline, instruction_in_pipeline_2, instruction_in_pipeline_3, instruction_in_pipeline_4, updated_pc_in_pipeline, updated_pc_in_pipeline_2, regfile_data_1_in_pipeline, regfile_data_2_in_pipeline,
                   branch_pc_in_pipeline, jump_pc_in_pipeline;
 wire [       1:0] alu_op;
@@ -62,13 +62,15 @@ wire branch_in_mux,mem_read_in_mux,mem_2_reg_in_mux,mem_write_in_mux,reg_write_i
 wire jump_in_mux;
 wire [4:0] destination_addr,second_operand;
 
-wire we_buffer,post_jump,hit_buffer,pre_jump,pred_jump;
+wire we_buffer,post_jump,hit_buffer,pre_jump,pred_jump, pre_jump_out_mux;
 wire flush;
-wire [31:0] current_pc_IFID, current_pc_IDEX,next_pc, n_tar, n_pre, post_pc,pre_pc;
+wire [31:0] current_pc_IFID, current_pc_IDEX,next_pc, n_tar, n_pre, post_pc,pre_pc,current_pc_out_mux,pre_pc_out_mux;
 wire pre_jump_IFID,pre_pc_IFID; 
 wire rsrtEqual; 
-wire correct_pc, correct_flow_change, post_flow_change, correct_flow,incorrect_flow_IDEX,post_flow_change_IDEX,correct_flow_in_mux;
-wire [31:0] recovery_pc,recovery_pc_IDEX; 
+wire correct_pc, correct_flow_change, post_flow_change, correct_flow,post_flow_change_IDEX,correct_flow_in_mux;
+wire [31:0] recovery_pc,recovery_pc_IDEX, updated_pc_to_pipeline; 
+wire hit_buffer_IFID,hit_buffer_out_mux;
+wire we_buffer_ID_in_mux,we_buffer_ID,we_buffer_IDEX;  
 
 /* assign control_stall_ID = jump_in_pipeline | branch_in_pipeline;
 assign control_stall_EX = branch           | jump ;
@@ -99,7 +101,7 @@ branch_information_buffer buffer(
    .clk(clk),
    .nrst(arst_n),
    .re(1'b1), 
-   .we(incorrect_flow_IDEX), 
+   .we(we_buffer_IDEX), 
    .r_addr(current_pc),   
    .w_addr(current_pc_IDEX),
    .n_tar(recovery_pc_IDEX),
@@ -111,11 +113,44 @@ branch_information_buffer buffer(
 
 assign pre_jump = pred_jump & hit_buffer; 
 assign jump = pre_jump | (~correct_flow); //predict jump or recovering from mistake  
+
+
+mux_2 #(
+   .DATA_W(1)
+) hit_buffer_flush_mux (
+   .input_a (1'b0                  ), 
+   .input_b (hit_buffer    ),
+   .select_a(~correct_flow                  ),
+   .mux_out (hit_buffer_out_mux)
+);
+
 reg_arstn_en	#(.DATA_W(1))
-branch_taken_regIFID (
+hit_buffer_regIFID (
     .clk (clk ),
     .arst_n(arst_n  ),
-    .din   (pre_jump),
+    .din   (hit_buffer_out_mux),
+    .en    (enable_fetch),
+    .dout  (hit_buffer_IFID)
+);
+
+
+
+
+
+mux_2 #(
+   .DATA_W(1)
+) pre_pc_flush_mux (
+   .input_a (1'b0                  ), 
+   .input_b (pre_jump    ),
+   .select_a(~correct_flow                  ),
+   .mux_out (pre_jump_out_mux)
+);
+
+reg_arstn_en	#(.DATA_W(1))
+pre_pc_regIFID (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (pre_jump_out_mux),
     .en    (enable_fetch),
     .dout  (pre_jump_IFID)
 );
@@ -130,11 +165,21 @@ mux_2 #(
    .mux_out (jump_pc)
 );
 
+
+mux_2 #(
+   .DATA_W(32)
+) pre_pc_flush_mux (
+   .input_a (32'b0                  ), 
+   .input_b (pre_pc     ),
+   .select_a(~correct_flow                  ),
+   .mux_out (pre_pc_out_mux)
+);
+
 reg_arstn_en	#(.DATA_W(32))
 target_taken_regIFID (
     .clk (clk ),
     .arst_n(arst_n  ),
-    .din   (pre_pc),
+    .din   (pre_pc_out_mux),
     .en    (enable_fetch),
     .dout  (pre_pc_IFID)
 );
@@ -157,20 +202,27 @@ sram #(
    .rdata_ext(rdata_ext     )
 );
 
-
+mux_2 #(
+   .DATA_W(32)
+) current_pc_flush_mux (
+   .input_a (32'b0                  ), 
+   .input_b (current_pc     ),
+   .select_a(~correct_flow                  ),
+   .mux_out (current_pc_out_mux)
+);
 
 reg_arstn_en	#(.DATA_W(32))
 current_pc_pipe (
     .clk (clk ),
     .arst_n(arst_n  ),
-    .din   (current_pc),
+    .din   (current_pc_out_mux),
     .en    (enable_fetch),
     .dout  (current_pc_IFID)
 );
 
 mux_2 #(
    .DATA_W(32)
-) instruction_control_stall_mux (
+) instruction_control_flush_mux (
    .input_a (32'b0                  ), 
    .input_b (instruction_in_mux     ),
    .select_a(~correct_flow                  ),
@@ -188,11 +240,22 @@ instruction_pipe (
     .dout  (instruction_in_pipeline_2)
 );
 
+
+mux_2 #(
+   .DATA_W(32)
+) updated_pc_flush_mux (
+   .input_a (32'b0                  ), 
+   .input_b (updated_pc_in_pipeline     ),
+   .select_a(~correct_flow                  ),
+   .mux_out (updated_pc_to_pipeline)
+);
+
+
 reg_arstn_en	#(.DATA_W(32))
 updated_pc_pc_plus_4 (
     .clk (clk ),
     .arst_n(arst_n  ),
-    .din   (updated_pc_in_pipeline),
+    .din   (updated_pc_to_pipeline),
     .en    (enable_fetch),
     .dout  (updated_pc)
 );
@@ -318,24 +381,37 @@ branch_unit#(
    .updated_pc   (updated_pc        ),
    .instruction  (instruction_in_pipeline_2      ),
    .branch_offset(immediate_extended_in_pipeline),
-   .branch_pc    (branch_pc         ),
-   .jump_pc      (jump_pc         )
+   .branch_pc    (post_branch_pc         ),
+   .jump_pc      (post_jump_pc         )
 );
 
 mux_2 #(
    .DATA_W(32)
 ) next_target_mux (
-   .input_a (jump_pc), //instruction being the instruction loaded 5 cycles ago.
-   .input_b (branch_pc),
+   .input_a (post_jump_pc), //instruction being the instruction loaded 5 cycles ago.
+   .input_b (post_branch_pc),
    .select_a(post_jump        ),
    .mux_out (post_pc )
 );
+
 
 assign correct_pc = (post_pc == pre_pc_IFID); 
 assign post_flow_change = (post_branch | post_jump); 
 assign correct_flow_change = (post_flow_change == pre_jump);
 assign correct_flow_in_mux        = ((post_flow_change & correct_flow_change & correct_pc) | ((~post_flow_change)&correct_flow_change));  //target and target taken correct 
 assign recovery_pc = (post_flow_change==1)? post_pc : updated_pc ; 
+assign we_buffer_ID_in_mux = (~hit_buffer_IFID & post_flow_change) | ~correct_flow_in_mux
+
+
+
+mux_2 #(
+   .DATA_W(1)
+) correct_flow_stall_mux (
+   .input_a (1'b0           ), 
+   .input_b (we_buffer_ID_in_mux      ),
+   .select_a(data_stall         ),
+   .mux_out (we_buffer_ID )
+);
 
 
 mux_2 #(
@@ -347,12 +423,12 @@ mux_2 #(
    .mux_out (correct_flow )
 );
 reg_arstn_en	#(.DATA_W(1))
-correct_flow_reg (
+we_buffer_reg (
     .clk (clk ),
     .arst_n(arst_n  ),
-    .din   (~correct_flow),
+    .din   (we_buffer_ID),
     .en    (enable),
-    .dout  (incorrect_flow_IDEX)
+    .dout  (we_buffer_IDEX)
 );
 
 reg_arstn_en	#(.DATA_W(1))
