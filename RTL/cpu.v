@@ -49,7 +49,7 @@ wire [       4:0] regfile_waddr;
 wire [      31:0] regfile_wdata, dram_data, dram_data_in_pipeline,alu_out, alu_out_in_pipeline, alu_out_in_pipeline_2,
                   regfile_data_1,regfile_data_2,
                   alu_operand_2,instruction_in_mux;
- 
+wire [31:0] pre_pc_in_mux;
 
 wire signed [31:0] immediate_extended_in_pipeline, immediate_extended;
 
@@ -71,7 +71,7 @@ wire correct_pc, correct_flow_change, post_flow_change, correct_flow,post_flow_c
 wire [31:0] recovery_pc,recovery_pc_IDEX, updated_pc_to_pipeline; 
 wire hit_buffer_IFID,hit_buffer_out_mux;
 wire we_buffer_ID_in_mux,we_buffer_ID,we_buffer_IDEX;  
-
+wire pre_jump_in_mux,hit_buffer_in_mux;
 /* assign control_stall_ID = jump_in_pipeline | branch_in_pipeline;
 assign control_stall_EX = branch           | jump ;
 assign control_stall = control_stall_ID | control_stall_EX; */
@@ -118,15 +118,27 @@ branch_information_buffer buffer(
    .pre(pred_jump)
 );
 
+
+
+
 assign pre_jump = pred_jump & hit_buffer; 
 assign jump = pre_jump | (~correct_flow); //predict jump or recovering from mistake  
 
+
+eg_arstn_en	#(.DATA_W(1))
+hit_buffer_reg (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (hit_buffer),
+    .en    (enable_fetch),
+    .dout  (hit_buffer_in_mux)
+);
 
 mux_2 #(
    .DATA_W(1)
 ) hit_buffer_flush_mux (
    .input_a (1'b0                  ), 
-   .input_b (hit_buffer    ),
+   .input_b (hit_buffer_in_mux    ),
    .select_a(~correct_flow                  ),
    .mux_out (hit_buffer_out_mux)
 );
@@ -141,14 +153,21 @@ hit_buffer_regIFID (
 );
 
 
-
+reg_arstn_en	#(.DATA_W(1))
+pre_jump_reg (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (pre_jump),
+    .en    (enable_fetch),
+    .dout  (pre_jump_in_mux)
+);
 
 
 mux_2 #(
    .DATA_W(1)
 ) pre_jump_flush_mux (
    .input_a (1'b0                  ), 
-   .input_b (pre_jump    ),
+   .input_b (pre_jump_in_mux    ),
    .select_a(~correct_flow                  ),
    .mux_out (pre_jump_out_mux)
 );
@@ -172,12 +191,20 @@ mux_2 #(
    .mux_out (jump_pc)
 );
 
+reg_arstn_en	#(.DATA_W(32))
+target_taken_regPRE (
+    .clk (clk ),
+    .arst_n(arst_n  ),
+    .din   (pre_pc),
+    .en    (enable),
+    .dout  (pre_pc_in_mux)
+);
 
 mux_2 #(
    .DATA_W(32)
 ) pre_pc_flush_mux (
    .input_a (32'b0                  ), 
-   .input_b (pre_pc     ),
+   .input_b (pre_pc_in_mux     ),
    .select_a(~correct_flow                  ),
    .mux_out (pre_pc_out_mux)
 );
