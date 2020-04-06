@@ -4373,7 +4373,7 @@ key_r_reg (
     .clk (clk ),
     .arst_n(nrst  ),
     .din   (r_addr[8:6]),
-    .en    (enable_fetch),
+    .en    (re),
     .dout  (key_r)
 );
  assign hit    = O[36] & (O[34:32] == key_r);
