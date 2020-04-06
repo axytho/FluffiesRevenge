@@ -125,7 +125,7 @@ assign pre_jump = pred_jump & hit_buffer;
 assign jump = pre_jump | (~correct_flow); //predict jump or recovering from mistake  
 
 
-reg_arstn_en	#(.DATA_W(1))
+eg_arstn_en	#(.DATA_W(1))
 hit_buffer_reg (
     .clk (clk ),
     .arst_n(arst_n  ),
