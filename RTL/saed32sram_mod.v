@@ -4368,7 +4368,7 @@ module  branch_information_buffer(
  
  wire [36:0] O;
  wire [36:0] I;
- reg_arstn_en	#(.DATA_W(1))
+ reg_arstn_en	#(.DATA_W(3))
 key_r_reg (
     .clk (clk ),
     .arst_n(nrst  ),
