@@ -95,21 +95,14 @@ pc #(
    .enable    (enable_pc             ), //don't update if stall 
    .updated_pc(updated_pc_in_pipeline)
 );
-mux_2 #(
-   .DATA_W(32)
-) next_pc__mux (
-   .input_a (jump_pc                 ), 
-   .input_b (updated_pc_in_pipeline    ),
-   .select_a(jump                 ),
-   .mux_out (next_pc)
-);
+
 
 branch_information_buffer buffer(
    .clk(clk),
    .nrst(arst_n),
    .re(1'b1), 
    .we(we_buffer_IDEX), 
-   .r_addr(next_pc),   
+   .r_addr(current_pc),   
    .w_addr(current_pc_IDEX),
    .n_tar(recovery_pc_IDEX),
    .n_pre(post_flow_change_IDEX),
@@ -407,7 +400,7 @@ assign post_flow_change = (post_branch | post_jump);
 assign correct_flow_change = (post_flow_change == pre_jump);
 assign correct_flow_in_mux        = ((post_flow_change & correct_flow_change & correct_pc) | ((~post_flow_change)&correct_flow_change));  //target and target taken correct 
 assign recovery_pc = (post_flow_change==1)? post_pc : updated_pc ; 
-assign we_buffer_ID_in_mux = (~hit_buffer_IFID & ( branch |post_jump)) |( ~correct_flow_in_mux);
+assign we_buffer_ID_in_mux = (~hit_buffer_IFID & ( branch |post_jump)) | ~correct_flow_in_mux;
 
 
 
