@@ -139,7 +139,7 @@ hit_buffer_regIFID (
 
 mux_2 #(
    .DATA_W(1)
-) pre_pc_flush_mux (
+) pre_jump_flush_mux (
    .input_a (1'b0                  ), 
    .input_b (pre_jump    ),
    .select_a(~correct_flow                  ),
@@ -147,7 +147,7 @@ mux_2 #(
 );
 
 reg_arstn_en	#(.DATA_W(1))
-pre_pc_regIFID (
+pre_jump_regIFID (
     .clk (clk ),
     .arst_n(arst_n  ),
     .din   (pre_jump_out_mux),
