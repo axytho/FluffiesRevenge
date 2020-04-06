@@ -37,9 +37,9 @@ module cpu(
    );
 
 wire              zero_flag, zero_flag_in_pipeline;
-wire [      31:0] branch_pc,updated_pc,current_pc,jump_pc,post_jump_pc,post_branch_pc
-                  instruction, instruction_in_pipeline, instruction_in_pipeline_2, instruction_in_pipeline_3, instruction_in_pipeline_4, updated_pc_in_pipeline, updated_pc_in_pipeline_2, regfile_data_1_in_pipeline, regfile_data_2_in_pipeline,
-                  branch_pc_in_pipeline, jump_pc_in_pipeline;
+wire [      31:0] branch_pc,updated_pc,current_pc,jump_pc,post_jump_pc,post_branch_pc;
+wire [      31:0]  instruction, instruction_in_pipeline, instruction_in_pipeline_2, instruction_in_pipeline_3, instruction_in_pipeline_4, updated_pc_in_pipeline, updated_pc_in_pipeline_2, regfile_data_1_in_pipeline, regfile_data_2_in_pipeline;
+wire [      31:0] branch_pc_in_pipeline, jump_pc_in_pipeline;
 wire [       1:0] alu_op;
 wire [       3:0] alu_control, alu_control_in_pipeline;
 wire              reg_dst, reg_dst_in_pipeline, reg_dst_in_pipeline_2, reg_dst_in_pipeline_3, branch, post_branch,mem_read,mem_2_reg, reg_write, reg_write_in_pipeline, reg_write_in_pipeline_2, reg_write_in_pipeline_3, 
@@ -406,7 +406,7 @@ assign we_buffer_ID_in_mux = (~hit_buffer_IFID & post_flow_change) | ~correct_fl
 
 mux_2 #(
    .DATA_W(1)
-) (we_buffer_stall_mux (
+) we_buffer_stall_mux (
    .input_a (1'b0           ), 
    .input_b (we_buffer_ID_in_mux      ),
    .select_a(data_stall         ),
