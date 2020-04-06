@@ -400,13 +400,13 @@ assign post_flow_change = (post_branch | post_jump);
 assign correct_flow_change = (post_flow_change == pre_jump);
 assign correct_flow_in_mux        = ((post_flow_change & correct_flow_change & correct_pc) | ((~post_flow_change)&correct_flow_change));  //target and target taken correct 
 assign recovery_pc = (post_flow_change==1)? post_pc : updated_pc ; 
-assign we_buffer_ID_in_mux = (~hit_buffer_IFID & post_flow_change) | ~correct_flow_in_mux
+assign we_buffer_ID_in_mux = (~hit_buffer_IFID & post_flow_change) | ~correct_flow_in_mux;
 
 
 
 mux_2 #(
    .DATA_W(1)
-) correct_flow_stall_mux (
+) (we_buffer_stall_mux (
    .input_a (1'b0           ), 
    .input_b (we_buffer_ID_in_mux      ),
    .select_a(data_stall         ),
