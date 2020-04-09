@@ -20,11 +20,12 @@ module pc#(
       input  wire              clk,
       input  wire              arst_n,
       input  wire              enable,
-      input  wire [DATA_W-1:0] branch_pc,
+      //input  wire [DATA_W-1:0] branch_pc,
       input  wire [DATA_W-1:0] jump_pc,  
-      input  wire              zero_flag,
-      input  wire              branch,
+      //input  wire              zero_flag,
+      //input  wire              branch,
       input  wire              jump,
+	  //input  wire              revert,
       output reg  [DATA_W-1:0] updated_pc,
       output reg  [DATA_W-1:0] current_pc
    );
@@ -32,30 +33,40 @@ module pc#(
    localparam  [DATA_W-1:0] PC_INCREASE= {{(DATA_W-3){1'b0}},3'd4};
   
 
-   wire [DATA_W-1:0] pc_r,next_pc,next_pc_i;
+   wire [DATA_W-1:0] pc_r,next_pc,next_pc_i,next_pc_j;
    reg               pc_src;
+   //reg [DATA_W-1:0] reverted_pc;
       
 
-   always@(*) pc_src = zero_flag & branch; 
+ //  always@(*) pc_src = zero_flag & branch; 
       
-   mux_2#(
+/*    mux_2#(
       .DATA_W(DATA_W)
    ) mux_branch( 
       .input_a (branch_pc ),
       .input_b (updated_pc),
       .select_a(pc_src    ),
       .mux_out (next_pc_i )
-   );
+   ); */
    
    mux_2#(
       .DATA_W(DATA_W)
    ) mux_jump( 
       .input_a (jump_pc   ),
-      .input_b (next_pc_i ),
+      //.input_b (next_pc_i ),
+	  .input_b (updated_pc),
       .select_a(jump      ),
-      .mux_out (next_pc   )
+     // .mux_out (next_pc_j )
+	  .mux_out (next_pc )
    );
-   
+/*     mux_2#(
+      .DATA_W(DATA_W)
+   ) mux_revert( 
+      .input_a (reverted_pc   ),
+      .input_b (next_pc_j     ),
+      .select_a(revert        ),
+      .mux_out (next_pc       )
+   );  */ 
 
 
    reg_arstn_en#(
@@ -70,8 +81,8 @@ module pc#(
    );
 
    
-   always@(*) updated_pc = current_pc+PC_INCREASE;
-
+   always@(*) updated_pc  = current_pc+PC_INCREASE;
+  // always@(*) reverted_pc = current_pc-PC_INCREASE;
 
    
 

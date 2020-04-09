@@ -91,7 +91,7 @@ module control_unit(
 	 STORE_WORD:begin
 	 	    reg_dst = 1'b0; //20-16
 		    alu_src   = 1'b1;
-		    mem_2_reg = 1'bx;
+		    mem_2_reg = 1'b0; //should be zero to correctly predict data hazards 
 		    reg_write = 1'b0;
 		    mem_read  = 1'b0;
 		    mem_write = 1'b1;
