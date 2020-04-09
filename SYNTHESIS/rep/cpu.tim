@@ -1,3 +1,4 @@
+Warning: Design 'cpu' has '1' unresolved references. For more detailed information, use the "link" command. (UID-341)
  
 ****************************************
 Report : timing
@@ -6,7 +7,7 @@ Report : timing
         -max_paths 1
 Design : cpu
 Version: N-2017.09-SP3
-Date   : Thu Mar 12 11:57:43 2020
+Date   : Thu Apr  9 21:38:29 2020
 ****************************************
 
  # A fanout number of 1000 was used for high fanout net computations.
@@ -14,91 +15,89 @@ Date   : Thu Mar 12 11:57:43 2020
 Operating Conditions: tt1p05v25c   Library: saed32sram_tt1p05v25c
 Wire Load Model Mode: enclosed
 
-  Startpoint: program_counter/pc_register/r_reg_9_
+  Startpoint: mem_2_reg_in_reg_3/r_reg_0_
               (rising edge-triggered flip-flop clocked by clk)
-  Endpoint: register_file/reg_array_reg_0__3_
+  Endpoint: alu_op_reg/r_reg_31_
             (rising edge-triggered flip-flop clocked by clk)
   Path Group: clk
   Path Type: max
 
   Des/Clust/Port     Wire Load Model       Library
   ------------------------------------------------
-  reg_arstn_en_32_s00000000
-                     ForQA                 saed32sram_tt1p05v25c
   cpu                280000                saed32sram_tt1p05v25c
-  sram_ADDR_W9_DATA_W32
-                     140000                saed32sram_tt1p05v25c
-  register_file_DATA_W32
-                     16000                 saed32sram_tt1p05v25c
+  forwarding_unit    ForQA                 saed32sram_tt1p05v25c
   alu_DATA_W32       8000                  saed32sram_tt1p05v25c
-  sram_ADDR_W10_DATA_W32
-                     280000                saed32sram_tt1p05v25c
 
   Point                                                   Incr       Path
   --------------------------------------------------------------------------
   clock clk (rise edge)                                   0.00       0.00
   clock network delay (ideal)                             0.00       0.00
-  program_counter/pc_register/r_reg_9_/CLK (DFFARX1_RVT)
-                                                          0.00       0.00 r
-  program_counter/pc_register/r_reg_9_/Q (DFFARX1_RVT)
-                                                          0.15       0.15 f
-  program_counter/pc_register/dout[9] (reg_arstn_en_32_s00000000)
-                                                          0.00       0.15 f
-  program_counter/current_pc[9] (pc_DATA_W32)             0.00       0.15 f
-  instruction_memory/addr[9] (sram_ADDR_W9_DATA_W32)      0.00       0.15 f
-  instruction_memory/U42/Y (NAND2X0_RVT)                  1.01       1.16 r
-  instruction_memory/U38/Y (INVX0_RVT)                    0.62       1.78 f
-  instruction_memory/U20/Y (AO22X1_RVT)                   3.63       5.42 f
-  instruction_memory/U107/Y (OR2X1_RVT)                   0.76       6.17 f
-  instruction_memory/rdata[23] (sram_ADDR_W9_DATA_W32)
-                                                          0.00       6.17 f
-  register_file/raddr_1[2] (register_file_DATA_W32)       0.00       6.17 f
-  register_file/U485/Y (AND3X1_RVT)                       1.23       7.40 f
-  register_file/U532/Y (AND2X1_RVT)                       0.42       7.82 f
-  register_file/U684/Y (AO22X1_RVT)                       0.32       8.14 f
-  register_file/U687/Y (NOR4X1_RVT)                       0.11       8.25 r
-  register_file/U688/Y (NAND4X0_RVT)                      1.25       9.50 f
-  register_file/rdata_1[1] (register_file_DATA_W32)       0.00       9.50 f
-  alu/alu_in_0[1] (alu_DATA_W32)                          0.00       9.50 f
-  alu/DP_OP_18J2_122_7468_U32/CO (FADDX1_RVT)            15.53      25.03 f
-  alu/DP_OP_18J2_122_7468_U31/CO (FADDX1_RVT)             0.21      25.24 f
-  alu/DP_OP_18J2_122_7468_U30/CO (FADDX1_RVT)             0.21      25.45 f
-  alu/DP_OP_18J2_122_7468_U29/CO (FADDX1_RVT)             0.21      25.66 f
-  alu/DP_OP_18J2_122_7468_U28/CO (FADDX1_RVT)             0.21      25.86 f
-  alu/DP_OP_18J2_122_7468_U27/CO (FADDX1_RVT)             0.21      26.07 f
-  alu/DP_OP_18J2_122_7468_U26/CO (FADDX1_RVT)             0.21      26.28 f
-  alu/DP_OP_18J2_122_7468_U25/CO (FADDX1_RVT)             0.21      26.49 f
-  alu/DP_OP_18J2_122_7468_U24/CO (FADDX1_RVT)             0.21      26.70 f
-  alu/DP_OP_18J2_122_7468_U23/CO (FADDX1_RVT)             0.21      26.90 f
-  alu/DP_OP_18J2_122_7468_U22/S (FADDX1_RVT)              0.19      27.10 f
-  alu/U19/Y (NAND2X0_RVT)                                 0.08      27.18 r
-  alu/U953/Y (AND4X1_RVT)                                 0.05      27.23 r
-  alu/U954/Y (NAND2X0_RVT)                                0.20      27.44 f
-  alu/alu_out[11] (alu_DATA_W32)                          0.00      27.44 f
-  data_memory/addr[11] (sram_ADDR_W10_DATA_W32)           0.00      27.44 f
-  data_memory/U295/Y (NAND3X0_RVT)                        1.28      28.71 r
-  data_memory/U102/Y (INVX0_RVT)                          0.68      29.39 f
-  data_memory/U347/Y (AO22X1_RVT)                         4.52      33.91 f
-  data_memory/U348/Y (OR4X1_RVT)                          0.70      34.61 f
-  data_memory/rdata[3] (sram_ADDR_W10_DATA_W32)           0.00      34.61 f
-  regfile_data_mux/input_a[3] (mux_2_DATA_W32_2)          0.00      34.61 f
-  regfile_data_mux/U25/Y (AO22X1_RVT)                     0.86      35.47 f
-  regfile_data_mux/mux_out[3] (mux_2_DATA_W32_2)          0.00      35.47 f
-  register_file/wdata[3] (register_file_DATA_W32)         0.00      35.47 f
-  register_file/reg_array_reg_0__3_/D (DFFARX1_RVT)       4.46      39.93 f
-  data arrival time                                                 39.93
+  mem_2_reg_in_reg_3/r_reg_0_/CLK (DFFARX1_RVT)           0.00       0.00 r
+  mem_2_reg_in_reg_3/r_reg_0_/Q (DFFARX1_RVT)             0.41       0.41 f
+  mem_2_reg_in_reg_3/dout[0] (reg_arstn_en_DATA_W1_2)     0.00       0.41 f
+  forwarding_unit/is_load_2 (forwarding_unit)             0.00       0.41 f
+  forwarding_unit/U18/Y (AND2X1_RVT)                      5.27       5.68 f
+  forwarding_unit/U29/Y (OA221X1_RVT)                     0.11       5.79 f
+  forwarding_unit/U43/Y (NAND4X0_RVT)                     0.08       5.87 r
+  forwarding_unit/U44/Y (NAND2X0_RVT)                     0.77       6.64 f
+  forwarding_unit/memForward (forwarding_unit)            0.00       6.64 f
+  bypassing_A_mux/select_a (mux_2_DATA_W32_5)             0.00       6.64 f
+  bypassing_A_mux/U3/Y (AO22X1_RVT)                       4.25      10.89 f
+  bypassing_A_mux/mux_out[1] (mux_2_DATA_W32_5)           0.00      10.89 f
+  operand_A_mux/input_a[1] (mux_2_DATA_W32_4)             0.00      10.89 f
+  operand_A_mux/U2/Y (AO22X1_RVT)                         1.01      11.90 f
+  operand_A_mux/mux_out[1] (mux_2_DATA_W32_4)             0.00      11.90 f
+  alu/alu_in_0[1] (alu_DATA_W32)                          0.00      11.90 f
+  alu/DP_OP_18J3_122_7468_U32/CO (FADDX1_RVT)            15.44      27.34 f
+  alu/DP_OP_18J3_122_7468_U31/CO (FADDX1_RVT)             0.20      27.54 f
+  alu/DP_OP_18J3_122_7468_U30/CO (FADDX1_RVT)             0.20      27.74 f
+  alu/DP_OP_18J3_122_7468_U29/CO (FADDX1_RVT)             0.20      27.94 f
+  alu/DP_OP_18J3_122_7468_U28/CO (FADDX1_RVT)             0.20      28.15 f
+  alu/DP_OP_18J3_122_7468_U27/CO (FADDX1_RVT)             0.20      28.35 f
+  alu/DP_OP_18J3_122_7468_U26/CO (FADDX1_RVT)             0.20      28.55 f
+  alu/DP_OP_18J3_122_7468_U25/CO (FADDX1_RVT)             0.20      28.75 f
+  alu/DP_OP_18J3_122_7468_U24/CO (FADDX1_RVT)             0.20      28.95 f
+  alu/DP_OP_18J3_122_7468_U23/CO (FADDX1_RVT)             0.20      29.15 f
+  alu/DP_OP_18J3_122_7468_U22/CO (FADDX1_RVT)             0.20      29.35 f
+  alu/DP_OP_18J3_122_7468_U21/CO (FADDX1_RVT)             0.20      29.55 f
+  alu/DP_OP_18J3_122_7468_U20/CO (FADDX1_RVT)             0.20      29.75 f
+  alu/DP_OP_18J3_122_7468_U19/CO (FADDX1_RVT)             0.20      29.95 f
+  alu/DP_OP_18J3_122_7468_U18/CO (FADDX1_RVT)             0.20      30.15 f
+  alu/DP_OP_18J3_122_7468_U17/CO (FADDX1_RVT)             0.20      30.36 f
+  alu/DP_OP_18J3_122_7468_U16/CO (FADDX1_RVT)             0.20      30.56 f
+  alu/DP_OP_18J3_122_7468_U15/CO (FADDX1_RVT)             0.20      30.76 f
+  alu/DP_OP_18J3_122_7468_U14/CO (FADDX1_RVT)             0.20      30.96 f
+  alu/DP_OP_18J3_122_7468_U13/CO (FADDX1_RVT)             0.20      31.16 f
+  alu/DP_OP_18J3_122_7468_U12/CO (FADDX1_RVT)             0.20      31.36 f
+  alu/DP_OP_18J3_122_7468_U11/CO (FADDX1_RVT)             0.20      31.56 f
+  alu/DP_OP_18J3_122_7468_U10/CO (FADDX1_RVT)             0.20      31.76 f
+  alu/DP_OP_18J3_122_7468_U9/CO (FADDX1_RVT)              0.20      31.96 f
+  alu/DP_OP_18J3_122_7468_U8/CO (FADDX1_RVT)              0.20      32.16 f
+  alu/DP_OP_18J3_122_7468_U7/CO (FADDX1_RVT)              0.20      32.36 f
+  alu/DP_OP_18J3_122_7468_U6/CO (FADDX1_RVT)              0.20      32.56 f
+  alu/DP_OP_18J3_122_7468_U5/CO (FADDX1_RVT)              0.20      32.76 f
+  alu/DP_OP_18J3_122_7468_U4/CO (FADDX1_RVT)              0.20      32.96 f
+  alu/DP_OP_18J3_122_7468_U3/CO (FADDX1_RVT)              0.19      33.15 f
+  alu/U1528/Y (XOR2X1_RVT)                                0.15      33.30 f
+  alu/U1529/Y (NAND2X0_RVT)                               0.07      33.37 r
+  alu/U1532/Y (AND3X1_RVT)                                0.05      33.42 r
+  alu/U1631/Y (NAND4X0_RVT)                               0.07      33.49 f
+  alu/alu_out[31] (alu_DATA_W32)                          0.00      33.49 f
+  alu_op_reg/din[31] (reg_arstn_en_DATA_W32_3)            0.00      33.49 f
+  alu_op_reg/r_reg_31_/D (DFFARX1_RVT)                    0.56      34.05 f
+  data arrival time                                                 34.05
 
   clock clk (rise edge)                                 100.00     100.00
   clock network delay (ideal)                             0.00     100.00
   clock uncertainty                                      -0.10      99.90
-  register_file/reg_array_reg_0__3_/CLK (DFFARX1_RVT)     0.00      99.90 r
-  library setup time                                     -0.10      99.80
-  data required time                                                99.80
+  alu_op_reg/r_reg_31_/CLK (DFFARX1_RVT)                  0.00      99.90 r
+  library setup time                                     -0.04      99.86
+  data required time                                                99.86
   --------------------------------------------------------------------------
-  data required time                                                99.80
-  data arrival time                                                -39.93
+  data required time                                                99.86
+  data arrival time                                                -34.05
   --------------------------------------------------------------------------
-  slack (MET)                                                       59.87
+  slack (MET)                                                       65.81
 
 
 1
